@@ -163,9 +163,9 @@ async def list(
 	#send list of extension
 	await inter.response.send_message(embed=emb, ephemeral=True)
 
-for filename in os.listdir("./Cogs"):
-	if filename.endswith(".py"):
-		bot.load_extension(f"Cogs.{filename[:-3]}")
+for filename in os.listdir("./"):
+	if filename.startswith("_") and filename.endswith(".py"):
+		bot.load_extension(f"{filename[:-3]}")
 
 
 bot.run("ODc1MDg0MzgzMjg2MDg3Njkx.YRQX1w.DtmzpbMWMUvOpwS7U8YBkLPZr4c")
