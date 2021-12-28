@@ -6,7 +6,7 @@ from disnake.ext import commands
 
 bot = commands.Bot(
 	command_prefix=".",
-	test_guilds=[847746372256923649, 823820166478823462]
+	test_guilds=[847746372256923649]
 )
 bot.remove_command("help")
 
