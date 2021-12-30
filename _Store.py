@@ -1,5 +1,5 @@
 import disnake
-from toaster import color, logo_url
+from coffe import color, logo_url
 from disnake.ext import commands
 
 class StoreCog(commands.Cog):
