@@ -7,7 +7,6 @@ class RulesCog(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.color = color
-		self.BREADIXWORLD_SERVER_ID = BREADIXWORLD_SERVER_ID
 		
 	@commands.Cog.listener()
 	async def on_ready(self):
