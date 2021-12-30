@@ -13,6 +13,7 @@ bot.remove_command("help")
 #materials and another things
 color = 0xFFEDC6
 BREADIXWORLD_SERVER_ID = [610142528271810560, 823820166478823462]
+logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973463192199178/new_year_bread_2.png"
 
 
 @bot.event
