@@ -1,5 +1,5 @@
 #правила BreadixWorld
-from coffe import color, BREADIXWORLD_SERVER_ID
+from coffe import color
 import disnake
 from disnake.ext import commands
 
@@ -57,10 +57,7 @@ class RulesCog(commands.Cog):
 	}
 	number_of_rules = round(len(rules_text)/2)
 
-	@commands.slash_command(
-		name="правила",
-		guild_ids=BREADIXWORLD_SERVER_ID,
-	)
+	@commands.slash_command(name="правила")
 	@commands.is_owner()
 	async def rule_clause(
 		self,
