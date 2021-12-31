@@ -4,10 +4,7 @@ import typing
 import disnake
 from disnake.ext import commands
 
-bot = commands.Bot(
-	command_prefix=".",
-	test_guilds=[610142528271810560]
-)
+bot = commands.Bot(".")
 bot.remove_command("help")
 
 #materials and another things
