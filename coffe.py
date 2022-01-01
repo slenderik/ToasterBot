@@ -18,7 +18,7 @@ async def on_ready():
 	print(f"{bot.user} | Панель управления")
  
  
-@bot.slash_command(guild_ids="823820166478823462")
+@bot.slash_command(guild_ids=test_ids)
 @commands.is_owner()
 async def cog(inter: disnake.ApplicationCommandInteraction):
 	pass
