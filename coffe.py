@@ -10,6 +10,7 @@ bot.remove_command("help")
 #materials and another things
 color = 0xFFEDC6
 logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973463192199178/new_year_bread_2.png"
+test_ids = "823820166478823462"
 
 
 @bot.event
@@ -17,7 +18,7 @@ async def on_ready():
 	print(f"{bot.user} | Панель управления")
  
  
-@bot.slash_command()
+@bot.slash_command(guild_ids="823820166478823462")
 @commands.is_owner()
 async def cog(inter: disnake.ApplicationCommandInteraction):
 	pass
