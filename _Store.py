@@ -17,64 +17,61 @@ class StoreCog(commands.Cog):
 		self,
 		inter: disnake.ApplicationCommandInteraction,
 	):
-		"""Посмотрите магазин:)"""
-		
-		print("The Stor cmd is invoke")
-		
-		emb1 = disnake.Embed(
+		"""Показывает магазин, в котором вы можете потратить валюту."""
+		store = disnake.Embed(
 			title="Магазин",
-			description="Все доступные товары за валюту <:breadcoin:858583099096956938>\nИспользуйте ``!купить-товар <название>`` в #боты\n[!] Для товара с ``+`` используйте ``!купить-товар VIPplus``",
+			description="Все доступные товары за валюту <:breadcoin:858583099096956938>\nИспользуйте ``!купить-товар <название>`` в <#710692543255281725>\n[!] Для товара с ``+`` используйте ``!купить-товар VIPplus``",
 			colour=self.color,
 		)
-		emb1.set_thumbnail(url=self.logo_url)
+		store.set_thumbnail(url=self.logo_url)
 		
-		emb2 = disnake.Embed(
+		mini_games_items = disnake.Embed(
 			title="Привелегии на мини-играх",
 			description="Покупая товар, ты получаешь купленную тобой привилегию на одном из серверов мини-игр на твой выбор. Со всеми возможностями привилегий можно ознакомиться на [сайте магазина](https://shop.breadixpe.ru/).",
 			colour=self.color,
 		)
-		emb2.add_field(
+		mini_games_items.add_field(
 			name="MVP - 1.590.000 <:breadcoin:858583099096956938>",
 			value="Базовая привилегия мини-играх SkyWars, BedWars и Murder Mystery!",
 		)
-		emb2.add_field(
+		mini_games_items.add_field(
 			name="VIP - 790.000 <:breadcoin:858583099096956938>",
 			value="Самая доступная привилегия на Sky Wars, BedWars и Murder Mystery!",
 		)
-		emb2.set_footer(text="shop.breadixpe.ru", icon_url=self.logo_url)
+		mini_games_items.set_footer(text="shop.breadixpe.ru", icon_url=self.logo_url)
 		
-		emb3 = disnake.Embed(
+		survival_products = disnake.Embed(
 			title="Привилегии на Survival",
 			description="Покупая товар, ты получаешь купленную тобой привилегию на сервере Survival. Со всеми возможностями привилегий можно ознакомиться на [сайте магазина](https://shop.breadixpe.ru/).",
 			colour=self.color,
 		)
-		emb3.add_field(
+		survival_products.add_field(
 			name="VIP+ - 2.590.000 <:breadcoin:858583099096956938>",
-			value="Самая популярная привилегия на Survival",
+			value="Самая популярная привилегия на Survival!",
 		)
-		emb3.add_field(
+		survival_products.add_field(
 			name="VIP - 1.190.000 <:breadcoin:858583099096956938>",
-			value="Популярная привилегия на Survival",
+			value="Популярная привилегия на Survival!",
 		)
-		emb3.add_field(
+		survival_products.add_field(
 			name="Creative - 990.000 <:breadcoin:858583099096956938>",
-			value="Базовая привилегия на Survival",
+			value="Базовая привилегия на Survival!",
 		)
-		emb3.add_field(
+		survival_products.add_field(
 			name="Fly - 290.000 <:breadcoin:858583099096956938>",
-			value="Самая доступная привилегия на Survival",
+			value="Самая доступная привилегия на Survival!",
 		)
-		emb3.set_footer(text="shop.breadixpe.ru", icon_url=self.logo_url)
+		survival_products.set_footer(text="shop.breadixpe.ru", icon_url=self.logo_url)
 		
 		
-		embeds = [emb1, emb2, emb3]
+		store_embeds = [store, mini_games_items, survival_products]
 		
-		await inter.response.send_message(embeds=embeds, ephemeral=True)
+		await inter.response.send_message(embeds=store_embeds, ephemeral=True)
 		
 
 def setup(bot):
-	print(" + StoreCog")
+	print(" + Магазин")
 	bot.add_cog(StoreCog(bot))
 
 def teardown (bot):
-	print(" – StoreCog")
+	print(" – Магазин")
