@@ -30,6 +30,7 @@ async def load(
 	inter: disnake.ApplicationCommandInteraction,
 	extension: str
 ):
+	"""Загружает дополнение"""
 	bot.load_extension(extension)
 	await inter.response.send_message(f"Винтик {extension} загружен", ephemeral=True)
 
@@ -40,6 +41,7 @@ async def unload(
 	inter: disnake.ApplicationCommandInteraction,
 	extension: str
 ):
+	"""Выгружает дополнение"""
 	bot.unload_extension(extension)
 	await inter.response.send_message(f"Винтик {extension} выгружен", ephemeral=True)
 
@@ -50,6 +52,7 @@ async def reload(
 	inter: disnake.ApplicationCommandInteraction,
 	extension: str
 ):
+	"""Перезагружает дополнение"""
 	bot.reload_extension(extension)
 	await inter.response.send_message(f"Винтик {extension} перезагружен", ephemeral=True)
 
@@ -59,7 +62,7 @@ async def reload(
 async def list(
 	inter: disnake.ApplicationCommandInteraction,
 ):
-	'''Показывает список дополнений'''
+	"""Показывает список дополнений"""
 	extension_list  = ""
 	
 	for filename in os.listdir("./"):
