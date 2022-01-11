@@ -23,19 +23,19 @@ class StoreCog(commands.Cog):
 		
 		emb1 = disnake.Embed(
 			title="Магазин",
-			description="Все доступные товары, которые можно приобрести за валюту <:breadcoin:858583099096956938>\n``!купить-товар <название>`` - команда для покупки товара. Вводить в #боты :nexclamation: - при покупке товара с + вводить plus.\nПример: ``!купить-товар VIPplus``",
+			description="Все доступные товары за валюту <:breadcoin:858583099096956938>\nИспользуйте ``!купить-товар <название>`` в #боты\n[!] Для товара с ``+`` используйте ``!купить-товар VIPplus``",
 			colour=self.color,
 		)
 		emb1.set_thumbnail(url=self.logo_url)
 		
 		emb2 = disnake.Embed(
 			title="Привелегии на мини-играх",
-			description="Покупая товар, ты получаешь купленную тобой привилегию на одном из серверов мини-игр на твой выбор. Со всеми возможностями привилегий можно ознакомиться [на сайте магазина.](https://shop.breadixpe.ru/)",
+			description="Покупая товар, ты получаешь купленную тобой привилегию на одном из серверов мини-игр на твой выбор. Со всеми возможностями привилегий можно ознакомиться на [сайте магазина](https://shop.breadixpe.ru/).",
 			colour=self.color,
 		)
 		emb2.add_field(
 			name="MVP - 1.590.000 <:breadcoin:858583099096956938>",
-			value="Базовая привилегия мини-играх Sky Vars, BedWars и Murder Mystery!",
+			value="Базовая привилегия мини-играх SkyWars, BedWars и Murder Mystery!",
 		)
 		emb2.add_field(
 			name="VIP - 790.000 <:breadcoin:858583099096956938>",
@@ -45,7 +45,7 @@ class StoreCog(commands.Cog):
 		
 		emb3 = disnake.Embed(
 			title="Привилегии на Survival",
-			description="Покупая товар, ты получаешь купленную тобой привилегию на сервере Survival. Со всеми возможностями привилегий можно ознакомиться [на сайте магазина.](https://shop.breadixpe.ru/)",
+			description="Покупая товар, ты получаешь купленную тобой привилегию на сервере Survival. Со всеми возможностями привилегий можно ознакомиться на [сайте магазина](https://shop.breadixpe.ru/).",
 			colour=self.color,
 		)
 		emb3.add_field(
