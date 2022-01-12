@@ -63,8 +63,17 @@ class StoreCog(commands.Cog):
 		)
 		survival_products.set_footer(text="shop.breadixpe.ru", icon_url=self.logo_url)
 		
+		other_goods = disnake.Embed(
+			title="Прочее",
+			description="Покупая товар, ты получаешь возоможность создать приватное место для себя и своих друзей.О других особенностях кланов можно ознакомться в <#610742443847057408>.",
+			colour=self.color,
+		)
+		other_goods.add_field(
+			name="Кланы - 15.000 <:breadcoin:858583099096956938>",
+			value="Самое лучшее и крутое что вы можете купить"
+		)
 		
-		store_embeds = [store, mini_games_items, survival_products]
+		store_embeds = [store, mini_games_items, survival_products, other_goods]
 		
 		await inter.response.send_message(embeds=store_embeds, ephemeral=True)
 		
