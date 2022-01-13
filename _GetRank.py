@@ -12,7 +12,7 @@ class GetRankCog(commands.Cog):
 		
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print(f"{self.bot.user} | /получить привилегию")
+		print(f"{self.bot.user} | /получить роли")
 	
 	@commands.command()
 	async def скрин(self, ctx: commands.Context):
