@@ -32,7 +32,7 @@ class GetRankCog(commands.Cog):
 	
 	
 	@get.sub_command(
-		name="привелегии"
+		name="роли"
 	)
 	async def rank(
 		self,
@@ -51,7 +51,7 @@ class GetRankCog(commands.Cog):
 		offset = 0
 
 		def search_request(nickname):
-			TOKEN = "862be8a8862be8a8862be8a83e86531f0e8862b862be8a8e731d70a4db6e27a927b37a5"
+			TOKEN = "25991c5d25991c5d25991c5d6d25e1ebfb2259925991c5d447917c5be90392810a81ccd"
 			VERSION = 5.131
 			DOMAIN = "breadixdonations"
 			response_ = get(
