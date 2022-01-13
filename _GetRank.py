@@ -38,15 +38,14 @@ class GetRankCog(commands.Cog):
 		self,
 		inter: disnake.ApplicationCommandInteraction,
 		никнейм: str,
-		откуда: str,
 	):
 		"""Если у вас есть привелегия(-и) на сервере
 			
 		Parameters
 		----------
 		никнейм: Просто введите ваш никнейм
-		откуда: Откуда привилегия? Куплена, выйграна, выдана.
 		"""
+		откуда = "Куплена"
 		await inter.response.send_message("Ожидайте, заявка отправлена.", ephemeral=True)
 		offset = 0
 
