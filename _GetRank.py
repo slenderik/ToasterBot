@@ -31,9 +31,7 @@ class GetRankCog(commands.Cog):
 		pass
 	
 	
-	@get.sub_command(
-		name="роли"
-	)
+	@get.sub_command(name="роли")
 	async def roles(
 		self,
 		inter: disnake.ApplicationCommandInteraction,
@@ -45,13 +43,13 @@ class GetRankCog(commands.Cog):
 		----------
 		никнейм: Просто введите ваш никнейм
 		"""
-		откуда = "Куплена"
 		await inter.response.send_message("Ожидайте, заявка отправлена.", ephemeral=True)
+		
 		offset = 0
 
 		def search_request(nickname):
 			TOKEN = "25991c5d25991c5d25991c5d6d25e1ebfb2259925991c5d447917c5be90392810a81ccd"
-			VERSION = 5.131
+			VERSION = "5.131"
 			DOMAIN = "breadixdonations"
 			OWNER_ID = "-151687251"
 			response_ = get(
@@ -131,7 +129,7 @@ class GetRankCog(commands.Cog):
 		
 		admin_embed = disnake.Embed(
 			title=":scroll: Заявка на привелегии",
-			description=f"Имя пользователя: __{inter.user}__ \nИгровой никнейм: __{никнейм}__ \nОткуда: **{откуда}**",
+			description=f"Имя пользователя: __{inter.user}__ \nИгровой никнейм: __{никнейм}__**",
 			color = self.color,
 		)
 		if posts != "":
@@ -152,20 +150,11 @@ class GetRankCog(commands.Cog):
 			f"{inter.user.mention} | {никнейм}",
 			embed=admin_embed
 		)
-		
-		
-	@rank.autocomplete("откуда")
-	async def get_autocomp(
-		self,
-		inter: disnake.ApplicationCommandInteraction,
-		string: str
-	):
-		string = string.lower()
-		return [lang for lang in self.RANK_ORIGIN if string in lang.lower()]
+
 
 def setup(bot):
-	print(" + GetRankCog")
 	bot.add_cog(GetRankCog(bot))
+	print(f" + {__name__}")
 
 def teardown (bot):
-	print(" – GetRankCog")
+	print(f" – {__name__}")
