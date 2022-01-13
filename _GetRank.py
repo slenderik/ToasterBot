@@ -18,7 +18,7 @@ class GetRankCog(commands.Cog):
 	async def скрин(self, ctx: commands.Context):
 		guide_emb = disnake.Embed(
 			title="Как мне получить роль?",
-			description="1. Зайдите на сервер.\n2. Авторизуйтесь в аккаунт и отойдите от спавна.\n3. Сделайте скриншот сообщения о входе.\n4. Отправьте изображение суда.",
+			description="1. Зайдите на сервер.\n2. Авторизуйтесь в аккаунт и **отойдите от спавна.**\n3. Сделайте скриншот сообщения о входе.\n4. Отправьте изображение суда.",
 			 color=self.color
 		)
 		await ctx.send(embed=guide_emb)
