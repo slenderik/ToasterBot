@@ -34,7 +34,7 @@ class GetRankCog(commands.Cog):
 	@get.sub_command(
 		name="роли"
 	)
-	async def rank(
+	async def roles(
 		self,
 		inter: disnake.ApplicationCommandInteraction,
 		никнейм: str,
@@ -53,13 +53,16 @@ class GetRankCog(commands.Cog):
 			TOKEN = "25991c5d25991c5d25991c5d6d25e1ebfb2259925991c5d447917c5be90392810a81ccd"
 			VERSION = 5.131
 			DOMAIN = "breadixdonations"
+			OWNER_ID = "-151687251"
 			response_ = get(
 				"https://api.vk.com/method/wall.search/",
 				params={
 					"access_token": TOKEN,
+					"owner_id": OWNER_ID,
 					"v": VERSION,
 					"domain": DOMAIN,
 					"query": nickname,
+					"owners_only": "1",
 					"offset": offset,
 				}
 			)
