@@ -1,6 +1,5 @@
 #get rank
 import disnake
-from typing import List
 from requests import get
 from coffe import color
 from disnake.ext import commands
@@ -24,7 +23,6 @@ class GetRankCog(commands.Cog):
 		await ctx.send(embed=guide_emb)
 	
 	CHANNEL_ID = 879594073420353548
-	RANK_ORIGIN = ["Куплена", "Выйграна", "Выдана"]
 	
 	@commands.slash_command(name="получить")
 	async def get(self, inter: disnake.ApplicationCommandInteraction):
