@@ -1,6 +1,6 @@
 #правила BreadixWorld
-from coffe import color
 import disnake
+from coffe import color
 from disnake.ext import commands
 
 class RulesCog(commands.Cog):
@@ -55,53 +55,54 @@ class RulesCog(commands.Cog):
 		"12-1":"Любые действия, нарушающие [правила платформы Discord](https://discord.com/guidelines), считаются крайне серьёзным нарушением и наказываются соответствующе.",
 	}
 	number_of_rules = round(len(rules_text)/2)
-
+	
+	@commands.command()
+	async def rules(self, ctx: commands.Context):
+		
+		emb = disnake.Embed(
+			title="Правила сообщества в Discord",
+			colour=self.color,
+		)
+		'''Добавляем к ембеду все пункты правил'''
+		for i in range(1, self.number_of_rules):
+			emb.add_field(
+				name=f"{i}. {self.rules_text[i]}",
+				value=self.rules_text[(str(i)+"-1")]
+			)
+		
+		emb.set_footer(text="Ситуации, которые не прописаны в этом своде правил, администрация решает на свое усмотрение.")
+		#Делаем ембед с изображением
+		
+		pic = disnake.Embed(colour=self.color)
+		pic.set_image(url="https://media.discordapp.net/attachments/914829522929614869/916700023541080074/20210629-105623.png")
+		#состовляем список из двух ембедов, для последовательной отправки в одном сообщении
+		embeds = (pic, emb)
+		await ctx.send(embeds=embeds)
+	
 	@commands.slash_command(name="правила")
-	@commands.is_owner()
 	async def rule_clause(
 		self,
-	    inter: disnake.ApplicationCommandInteraction,
-	    пункт: int = commands.Param(default=None, min_value=1, max_value=number_of_rules),
+		inter: disnake.ApplicationCommandInteraction,
+		пункт: int = commands.Param(min_value=1, max_value=number_of_rules),
 	):
-		"""Отправляет все правила в чат
+		"""Отправляет правила
 		
 		Parameters
 		----------
 		пункт: Выберите конкретный пункт (1-12)
 		"""
-		#Текст выше является описание команды и аргумента <Пункт>
-		#Если пользователь НЕ указал пункт
-		if пункт is None:
-			emb = disnake.Embed(
-				title="Правила сообщества в Discord",
-				description="Здесь я старался сделать не душные правила, всем UwU",			colour=self.color,
-			)
-			'''Добавляем к ембеду все пункты правил'''
-			for i in range(1, self.number_of_rules):
-				emb.add_field(
-					name=f"{i}. {self.rules_text[i]}",
-					value=self.rules_text[(str(i)+"-1")]
-				)
-			emb.set_footer(text="Ситуации, которые не прописаны в этом своде правил, администрация решает на свое усмотрение.")
-			#Делаем ембед с изображением
-			pic = disnake.Embed(colour=self.color)
-			pic.set_image(url="https://media.discordapp.net/attachments/914829522929614869/916700023541080074/20210629-105623.png")
-			#состовляем список из двух ембедов, для последовательной отправки в одном сообщении
-			embs = (pic, emb)
-			await inter.response.send_message(embeds=embs)
-		#Если человек выбрал пункт
-		else:
-			emb = disnake.Embed(title=f"{пункт}-ый пункт правил сообщества", colour=self.color)
-			#добавляем только один пункт к ембеду
-			emb.add_field(
-				name=f"{self.rules_text[пункт]}",
-				value=self.rules_text[str(пункт)+"-1"],
-			)
-			await inter.response.send_message(embed=emb)
+		#Текст выше является описание команды и аргумента Пункт
+		emb = disnake.Embed(title=f"{пункт}-ый пункт правил сообщества", colour=self.color)
+		#добавляем только один пункт к ембеду
+		emb.add_field(
+			name=f"{self.rules_text[пункт]}",
+			value=self.rules_text[str(пункт)+"-1"],
+		)
+		await inter.response.send_message(embed=emb)
 
 def setup(bot):
-	print(" + RulesCog")
 	bot.add_cog(RulesCog(bot))
+	print(f" + {__name__}")
 
 def teardown (bot):
-	print(" – RulesCog")
+	print(f" – {__name__}")
