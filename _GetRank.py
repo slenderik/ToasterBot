@@ -127,7 +127,7 @@ class GetRankCog(commands.Cog):
 		
 		admin_embed = disnake.Embed(
 			title=":scroll: Заявка на привелегии",
-			description=f"Имя пользователя: __{inter.user}__ \nИгровой никнейм: __{никнейм}__**",
+			description=f"Имя пользователя: __{inter.user}__ \nИгровой никнейм: __{никнейм}__",
 			color = self.color,
 		)
 		if posts != "":
