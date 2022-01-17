@@ -57,6 +57,7 @@ class RulesCog(commands.Cog):
 	number_of_rules = round(len(rules_text)/2)
 	
 	@commands.command()
+	@commands.is_owner()
 	async def rules(self, ctx: commands.Context):
 		
 		emb = disnake.Embed(
