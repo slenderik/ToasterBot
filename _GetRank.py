@@ -75,6 +75,7 @@ class GetRankCog(commands.Cog):
 				"bedwars": "BW",
 				"skywars": "SW",
 				"murder mystery": "MM",
+				"murder mystery": "MM",
 				"survival": "surv",
 			}
 			
