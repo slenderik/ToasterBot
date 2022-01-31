@@ -68,7 +68,7 @@ class GetRankCog(commands.Cog):
 		post_count = response.json()["response"]["count"]
 		
 		def get_server(text):
-			servers = ("bedwars", "skywars", "murder mystery", "survival")
+			servers = ("bedwars", "skywars", "murder mystery", "murdermystery" "survival")
 			numbers = ("№1", "№2", "№3")
 			
 			server_output = {
