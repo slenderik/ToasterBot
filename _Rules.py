@@ -43,7 +43,7 @@ rules_text = {
 	"12_заголовок":"Соблюдайте правила платформы Discord",
 	"12_содержание":"Любые действия, нарушающие [правила платформы Discord](https://discord.com/guidelines), считаются крайне серьёзным нарушением и наказываются соответствующе.",
 }
-	number_of_rules = round(len(rules_text)/2)
+number_of_rules = round(len(rules_text)/2)
 
 class RulesCog(commands.Cog):
 	def __init__(self, bot: commands.Bot):
@@ -103,4 +103,3 @@ def setup(bot):
 
 def teardown (bot):
 	print(f" – {__name__}")
-	
