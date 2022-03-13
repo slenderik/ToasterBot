@@ -59,7 +59,7 @@ class RulesCog(commands.Cog):
 		"""Отправить все правила в чат."""
 		rules_embed = disnake.Embed(title="Правила сообщества в Discord")
 		#Добавляем все пункты правил к ембеду
-		for clause in range(1, self.number_of_rules):
+		for clause in range(1, number_of_rules):
 			rules_embed.add_field(
 				name=f"{clause}. {rules_texts[str(clause)+'_заголовок']}",
 				value=rules_texts[str(clause)+'_заголовок']
