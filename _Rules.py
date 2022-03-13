@@ -57,6 +57,11 @@ class RulesCog(commands.Cog):
 	async def rule(self, inter: disnake.ApplicationCommandInteraction):
 		pass
 	
+	Rules_clauses = []
+	for clause in range(1, number_of_rules):
+		Rules_clauses.append(f"{clause}. {rules_texts[str(clause)+'_заголовок']}")
+	Rules_clauses = commands.option_enum(Rules_clauses)
+	
 	async def convert_number(self, number) -> str:
 		"""Вернуть изменённое число в русской речевой форме."""
 		if number in [1, 4, 5, 9, 0]:
