@@ -43,15 +43,34 @@ rules_text = {
 	"12_заголовок":"Соблюдайте правила платформы Discord",
 	"12_содержание":"Любые действия, нарушающие [правила платформы Discord](https://discord.com/guidelines), считаются крайне серьёзным нарушением и наказываются соответствующе.",
 }
-number_of_rules = round(len(rules_text)/2)
+number_of_rules = round(len(rules_texts)/2)
 
 class RulesCog(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
-		
+	
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print(f"{self.bot.user} | /правила")
+		print(f"{self.bot.user} | {__name__}")
+	
+	@commands.command(name="все-правила")
+	@commands.is_owner()
+	async def all_rules(self, ctx: commands.Context):
+		"""Отправить все правила в чат."""
+		rules_embed = disnake.Embed(title="Правила сообщества в Discord")
+		#Добавляем все пункты правил к ембеду
+		for clause in range(1, self.number_of_rules):
+			rules_embed.add_field(
+				name=f"{clause}. {rules_texts[str(clause)+'_заголовок']}",
+				value=rules_texts[str(clause)+'_заголовок']
+			)
+		rules_embed.set_footer(text="Некоторые ситуации могут решаться на усмотрение администратора.")
+		#Делаем ембед с изображением
+		picture_embed = disnake.Embed()
+		picture_embed.set_image(url="https://media.discordapp.net/attachments/914829522929614869/916700023541080074/20210629-105623.png")
+		#состовляем список из двух ембедов, для отправки в одном сообщении
+		embeds = (picture_embed, rules_embed)
+		await ctx.send(embeds=embeds)
 	
 	@commands.slash_command(name="правила")
 	async def rule(self, inter: disnake.ApplicationCommandInteraction):
