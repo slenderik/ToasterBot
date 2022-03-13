@@ -62,7 +62,7 @@ class RulesCog(commands.Cog):
 		for clause in range(1, number_of_rules):
 			rules_embed.add_field(
 				name=f"{clause}. {rules_texts[str(clause)+'_заголовок']}",
-				value=rules_texts[str(clause)+'_заголовок']
+				value=rules_texts[str(clause)+'_содержание']
 			)
 		rules_embed.set_footer(text="Некоторые ситуации могут решаться на усмотрение администратора.")
 		#Делаем ембед с изображением
