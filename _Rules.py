@@ -76,9 +76,10 @@ class RulesCog(commands.Cog):
 	async def rule(self, inter: disnake.ApplicationCommandInteraction):
 		pass
 	
-	Rules_clauses = []
+	Rules_clauses = {}
 	for clause in range(1, number_of_rules):
-		Rules_clauses.append(f"{clause}. {rules_texts[str(clause)+'_заголовок']}")
+		clause_to_add = {f"{clause}. {rules_texts[str(clause)+'_заголовок']}": clause}
+		Rules_clauses.update(clause_to_add)
 	Rules_clauses = commands.option_enum(Rules_clauses)
 	
 	async def convert_number(self, number) -> str:
@@ -107,9 +108,9 @@ class RulesCog(commands.Cog):
 		пункт: Выберите пункт правил который будет отправлен.
 		упоминание: Упоминуть пользователя в сообщениии.
 		"""
-		clause = пункт[:1]
+		clause = пункт
 		member = упоминание
-		number = await self.convert_number(int(clause))
+		number = await self.convert_number(clause)
 		clause_embed = disnake.Embed(title=f"{number} пункт правил discord сообщества")
 		#добавляем только один пункт к ембеду
 		clause_embed.add_field(
