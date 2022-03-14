@@ -77,7 +77,7 @@ class RulesCog(commands.Cog):
 		pass
 	
 	Rules_clauses = {}
-	for clause in range(1, number_of_rules):
+	for clause in range(1, number_of_rules+1):
 		clause_to_add = {f"{clause}. {rules_texts[str(clause)+'_заголовок']}": clause}
 		Rules_clauses.update(clause_to_add)
 	Rules_clauses = commands.option_enum(Rules_clauses)
