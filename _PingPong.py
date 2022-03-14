@@ -7,15 +7,18 @@ class PingPongCog(commands.Cog):
 	
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print(f"{self.bot.user} | .ping")
+		print(f"{self.bot.user} | {__name__}")
 
-	@commands.command()
+	@commands.command(name="пинг", aliases=["ping"])
 	async def ping(self, ctx: commands.Context):
-		await ctx.send("pong!")
+		ping_embed = disnake.Embed(
+			title=f"Пинг: {round(self.bot.latency, 3)} сек!"
+		)
+		await ctx.send(embed=ping_embed)
 		
 def setup(bot):
-	print(" + PingPongCog")
 	bot.add_cog(PingPongCog(bot))
+	print(f" + {__name__}")
 
-def teardown (bot):
-	print(" – PingPongCog")
+def teardown(bot):
+	print(f" – {__name__}")
