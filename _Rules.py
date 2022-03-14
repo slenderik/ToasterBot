@@ -84,7 +84,7 @@ class RulesCog(commands.Cog):
 	
 	async def convert_number(self, number) -> str:
 		"""Вернуть изменённое число в русской речевой форме."""
-		if number in [1, 4, 5, 9, 0]:
+		if number in [1, 4, 5, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
 			number = f"{number}-ый"
 			return number
 		elif number in [2, 6, 7, 8]:
