@@ -8,7 +8,7 @@ bot = commands.Bot(".")
 bot.remove_command("help")
 
 #materials and another things
-color = 0xFFEDC6
+disnake.Embed.set_default_color(283593)
 logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973463192199178/new_year_bread_2.png"
 admin_server_id = [823820166478823462]
 
