@@ -1,4 +1,4 @@
-#Coffe bot
+#Coffe bot GitHub-версия
 import os
 import typing
 import disnake
@@ -9,74 +9,73 @@ bot.remove_command("help")
 
 #materials and another things
 disnake.Embed.set_default_color(283593)
-logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973463192199178/new_year_bread_2.png"
+logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973455919251536/logo_bread.png"
 admin_server_id = [823820166478823462]
-
 
 @bot.event
 async def on_ready():
-	print(f"{bot.user} | Панель управления")
+	print(f"{bot.user} • Главная")
  
  
-@bot.slash_command(guild_ids=admin_server_id)
+@bot.slash_command(guild_ids=admin_server_id, name="дополнение")
 @commands.is_owner()
 async def cog(inter: disnake.ApplicationCommandInteraction):
 	pass
 
 
-@cog.sub_command()
+@cog.sub_command(name="загрузить")
 @commands.is_owner()
 async def load(
 	inter: disnake.ApplicationCommandInteraction,
 	extension: str
 ):
-	"""Загружает дополнение"""
+	"""Загрузить дополнение"""
 	bot.load_extension(extension)
-	await inter.response.send_message(f"Винтик {extension} загружен", ephemeral=True)
+	cog_load_embed = disnake.Embed(title=f"Дополнение {extension} загружено!")
+	await inter.response.send_message(embed=cog_load_embed, ephemeral=True)
 
 
-@cog.sub_command()
+@cog.sub_command(name="выгрузить")
 @commands.is_owner()
 async def unload(
 	inter: disnake.ApplicationCommandInteraction,
 	extension: str
 ):
-	"""Выгружает дополнение"""
+	"""Выгрузить дополнение"""
 	bot.unload_extension(extension)
-	await inter.response.send_message(f"Винтик {extension} выгружен", ephemeral=True)
+	cog_unload_embed = disnake.Embed(title=f"Дополнение {extension} выгружено!")
+	await inter.response.send_message(embed=cog_unload_embed, ephemeral=True)
 
 
-@cog.sub_command()
+@cog.sub_command(name="перезагрузить")
 @commands.is_owner()
 async def reload(
 	inter: disnake.ApplicationCommandInteraction,
 	extension: str
 ):
-	"""Перезагружает дополнение"""
+	"""Загрузить дополнение"""
 	bot.reload_extension(extension)
-	await inter.response.send_message(f"Винтик {extension} перезагружен", ephemeral=True)
+	cog_reload_embed = disnake.Embed(title=f"Дополнение {extension} перезагружено!")
+	await inter.response.send_message(embed=cog_reload_embed, ephemeral=True)
 
 
-@cog.sub_command()
+@cog.sub_command(name="список")
 @commands.is_owner()
 async def list(
 	inter: disnake.ApplicationCommandInteraction,
 ):
-	"""Показывает список дополнений"""
+	"""Показать список дополнений"""
 	extension_list  = ""
-	
 	for filename in os.listdir("./"):
 		if filename.startswith("_") and filename.endswith(".py"):
 			#add to list all extension
 			extension_list += f"{filename[:-3]}, \n"
-	
-	emb = disnake.Embed(
+	cog_list_embed = disnake.Embed(
 		title="Список дополнений",
 		description=extension_list,
-		colour=color,
 	)
-	#send list of extension
-	await inter.response.send_message(embed=emb, ephemeral=True)
+	await inter.response.send_message(embed=cog_list_embed, ephemeral=True)
+
 
 for filename in os.listdir("./"):
 	if filename.startswith("_") and filename.endswith(".py"):
