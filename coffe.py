@@ -4,7 +4,13 @@ import typing
 import disnake
 from disnake.ext import commands
 
-bot = commands.Bot(".")
+game = disnake.Game("play.breadixpe.ru")
+
+bot = commands.Bot(
+    prefix=".",
+    status=disnake.Status.online,
+    activity=game,
+)
 bot.remove_command("help")
 
 #materials and another things
@@ -15,9 +21,6 @@ admin_server_id = [823820166478823462]
 @bot.event
 async def on_ready():
 	print(f"{bot.user} • Главная")
-	game = disnake.Game("play.breadixpe.ru")
-	await bot.change_presence(status=disnake.Status.online, activity=game)
-
  
 @bot.slash_command(guild_ids=admin_server_id, name="дополнение")
 @commands.is_owner()
