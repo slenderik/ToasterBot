@@ -15,11 +15,12 @@ class VoiceNsfwOffCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        if before.channel.voice_states == {} and before.channel.is_nsfw():
-            try:
-                await before.channel.edit(nsfw=False, reason="Канал пустой, зачем ему оставаться с матом?")
-            except Exception as e:
-                print(e)
+        if before.channel is not None:
+            if before.channel.voice_states == {} and before.channel.is_nsfw():
+                try:
+                    await before.channel.edit(nsfw=False, reason="Канал пустой, зачем ему оставаться с матом?")
+                except Exception as e:
+                    print(e)
 
 
 def setup(bot):
