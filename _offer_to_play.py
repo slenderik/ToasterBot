@@ -52,7 +52,7 @@ class ChatCog(commands.Cog):
         pass
 
     Servers = commands.option_enum(
-        ["SkyWars №1", "SkyWars №2", "SkyWars №3", "BedWars №1", "BedWars №2", "BedWars #3", "Duels №1",
+        ["SkyWars №1", "SkyWars №2", "SkyWars №3", "BedWars №1", "BedWars №2", "BedWars №3", "Duels №1",
          "Murder Mystery №1", "Murder Mystery №2", "Survival №1"])
 
     @offer.sub_command(name="поиграть")
