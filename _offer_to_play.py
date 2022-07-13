@@ -55,7 +55,7 @@ class ChatCog(commands.Cog):
         ["SkyWars №1", "SkyWars №2", "SkyWars №3", "BedWars №1", "BedWars №2", "BedWars #3", "Duels №1",
          "Murder Mystery №1", "Murder Mystery №2", "Survival №1"])
 
-    @offer.sub_command(name="сыграть")
+    @offer.sub_command(name="поиграть")
     @commands.cooldown(2, 360.0, commands.BucketType.user)
     async def to_play(self, inter: disnake.ApplicationCommandInteraction, сервер: Servers = None):
         """
