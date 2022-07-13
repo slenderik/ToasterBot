@@ -34,7 +34,7 @@ async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, e
         texts = ["Извините!", "Простите!", "Ошибка"]
         error_embed = disnake.Embed(
             title=f":warning: | {choice(texts)}",
-            description=f"Не удалось выполнить команду, код ошибка: {error}"
+            description=f"Не удалось выполнить команду, код ошибки: {error}"
         )
         await inter.response.send_message(embed=error_embed, ephemeral=True)
     if isinstance(error, commands.CommandOnCooldown):

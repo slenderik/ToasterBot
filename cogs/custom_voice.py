@@ -17,21 +17,6 @@ logo_url = "https://media.discordapp.net/attachments/925973441524424716/92597345
 custom_rooms = {}
 
 
-async def is_owner(user_id: int) -> bool:
-    """Вернуть значение владелец ли человек"""
-    return custom_rooms.get(user_id, None) is not None
-
-
-async def in_channel(user: object) -> bool:
-    """Вернуть значение ползователь в канале?"""
-    return user.voice is not None
-
-
-async def in_owned_channel(user: object, channel: object) -> bool:
-    """Вернуть значение пользователь в своём канале?"""
-    return user.voice.channel.id == channel.id
-
-
 async def channel_name(name: str) -> str:
     """Вернуть название канала с учётом разных штук."""
     if "🔞" in name:
@@ -156,30 +141,30 @@ class NameView(disnake.ui.View):
         super().__init__(timeout=None)
 
     async def interaction_check(self, inter: disnake.MessageInteraction) -> bool:
-        owner = await is_owner(inter.user.id)
-        in_voice = await in_channel(inter.user)
+        channel = await get_channel(inter.guild, inter.user.id)
 
-        if owner and in_voice:
-            channel = await get_channel(inter.guild, inter.user.id)
-            if channel is not None:
-                in_owned = await in_owned_channel(inter.user, channel)
-                if in_owned:
-                    return True
-            else:
+        if channel is None:  # человек не создавал голосовой канал
+            await inter.response.send_message(
+                f"Создайте свой голосовой канал зайдя в <#{voice_create_id}>. "
+                f"Вам создадут и переместят вас в ваш канал. Находясь в нём, вы сможете "
+                f"использовать это!", ephemeral=True)
+            return False
+        elif channel is not None and inter.user.voice is not None:  # создавал и в войсе
+
+            if channel.id == inter.user.voice.channel.id:  # в своём войсе
+                return True
+
+            else:  # не в своём войсе
                 await inter.response.send_message(
-                    f"Вы должны находится в своём голосовом канале, чтобы настроить его",
+                    f"Зайдите в свой голосовой канал {channel.mention}, чтобы настроить его!",
                     ephemeral=True)
                 return False
-        elif owner and not in_voice:
-            await inter.response.send_message(f"Вы должны зайти в голосовой канал.", ephemeral=True)
+
+        elif channel is not None and inter.user.voice is None:  # создавал но не войсе
+            await inter.response.send_message(
+                f"Зайдите в свой голосовой канал {channel.mention}, чтобы настроить его!",
+                ephemeral=True)
             return False
-        elif not owner:
-            await inter.response.send_message(f"Вы должны создать голосовой канал.", ephemeral=True)
-            return False
-        """
-        Вы должны создать свой голосовой канал, зайдя в <#879387831385088020>
-        И уже находясь в нём, вы сможете  использовать эту прелестную кнопкушку.
-        """
 
     @disnake.ui.button(label="Общение", style=disnake.ButtonStyle.green, row=0)
     async def talk(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
@@ -203,13 +188,20 @@ class NameView(disnake.ui.View):
         await disable(self, button, inter)
 
     # sw bw surv duels
-    @disnake.ui.button(custom_id="name:skywars", label="SkyWars", style=disnake.ButtonStyle.blurple, row=1)
+    @disnake.ui.button(custom_id="name:skywars", label="SkyWars!", style=disnake.ButtonStyle.blurple, row=1)
     async def skywars(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         channel = await get_channel(inter.guild, inter.user.id)
         name = await channel_name(button.label)
         await channel.edit(name=name)
         await disable(self, button, inter)
         await inter.response.send_message(view=LimitView())
+
+    @disnake.ui.button(label="Duesls!", style=disnake.ButtonStyle.blurple, row=1)
+    async def duels(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        channel = await get_channel(inter.guild, inter.user.id)
+        name = await channel_name(button.label)
+        await channel.edit(name=name)
+        await disable(self, button, inter)
 
     @disnake.ui.button(label="Ввести название", style=disnake.ButtonStyle.gray, row=2)
     async def custom_name(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
@@ -243,11 +235,37 @@ class VoiceView(disnake.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @disnake.ui.button(custom_id="voice_view:name", label="Общение", style=disnake.ButtonStyle.green)
+    async def interaction_check(self, inter: disnake.MessageInteraction) -> bool:
+        channel = await get_channel(inter.guild, inter.user.id)
+
+        if channel is None:  # человек не создавал голосовой канал
+            await inter.response.send_message(
+                f"Создайте свой голосовой канал зайдя в <#{voice_create_id}>. "
+                f"Вам создадут и переместят вас в ваш канал. Находясь в нём, вы сможете "
+                f"использовать это!", ephemeral=True)
+            return False
+        elif channel is not None and inter.user.voice is not None:  # создавал и в войсе
+
+            if channel.id == inter.user.voice.channel.id:  # в своём войсе
+                return True
+
+            else:  # не в своём войсе
+                await inter.response.send_message(
+                    f"Зайдите в свой голосовой канал {channel.mention}, чтобы настроить его!",
+                    ephemeral=True)
+                return False
+
+        elif channel is not None and inter.user.voice is None:  # создавал но не войсе
+            await inter.response.send_message(
+                f"Зайдите в свой голосовой канал {channel.mention}, чтобы настроить его!",
+                ephemeral=True)
+            return False
+
+    @disnake.ui.button(custom_id="voice_view:name", label="Название", style=disnake.ButtonStyle.blurple)
     async def name(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         await inter.response.send_message(view=NameView(), ephemeral=True)
 
-    @disnake.ui.button(custom_id="voice_view:limit", label="Колличество участников", style=disnake.ButtonStyle.green)
+    @disnake.ui.button(custom_id="voice_view:limit", label="Колличество участников", style=disnake.ButtonStyle.blurple)
     async def limit(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         await inter.response.send_message(view=LimitView(), ephemeral=True)
 
