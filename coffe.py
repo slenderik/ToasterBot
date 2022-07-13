@@ -99,13 +99,13 @@ async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, e
             description=f"Не удалось выполнить команду, для этого необходима роль: {error}"
         )
         await inter.response.send_message(embed=error_embed, ephemeral=True)
-    if isinstance(error, commands.CommandError):
+	elif isinstance(error, commands.CommandError):
     	texts = ["Извините!", "Простите!", "Ошибка"]
-	error_embed = disnake.Embed(
-            title=f":warning: | {choice(texts)}",
-	    description=f"Не удалось выполнить команду, код ошибки: {error}"
-	)
-	await inter.response.send_message(embed=error_embed, ephemeral=True)
+		error_embed = disnake.Embed(
+			title=f":warning: | {choice(texts)}",
+			description=f"Не удалось выполнить команду, код ошибки: {error}"
+		)
+		await inter.response.send_message(embed=error_embed, ephemeral=True)
 
 
 for filename in os.listdir("./"):
