@@ -200,7 +200,7 @@ class NameView(disnake.ui.View):
     async def duels(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         channel = await get_channel(inter.guild, inter.user.id)
         name = await channel_name(button.label)
-        await channel.edit(name=name)
+        await channel.edit(name="Duels №1")
         await disable(self, button, inter)
 
     @disnake.ui.button(label="Ввести название", style=disnake.ButtonStyle.gray, row=2)
