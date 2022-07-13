@@ -1,4 +1,6 @@
-#Coffe bot GitHub-версия
+#Toasterbot GitHub-версия
+from random import choice
+
 import os
 import typing
 import disnake
@@ -66,9 +68,7 @@ async def reload(
 
 @cog.sub_command(name="список")
 @commands.is_owner()
-async def list(
-	inter: disnake.ApplicationCommandInteraction,
-):
+async def list(inter: disnake.ApplicationCommandInteraction):
 	"""Показать список дополнений"""
 	extension_list  = ""
 	for filename in os.listdir("./"):
@@ -80,6 +80,32 @@ async def list(
 		description=extension_list,
 	)
 	await inter.response.send_message(embed=cog_list_embed, ephemeral=True)
+
+@bot.event
+async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, error):
+    """Обработчик ошибок"""
+    if isinstance(error, commands.CommandError):
+        texts = ["Извините!", "Простите!", "Ошибка"]
+        error_embed = disnake.Embed(
+            title=f":warning: | {choice(texts)}",
+            description=f"Не удалось выполнить команду, код ошибки: {error}"
+        )
+        await inter.response.send_message(embed=error_embed, ephemeral=True)
+    elif isinstance(error, commands.CommandOnCooldown):
+        texts = ["Повторите позже", "чуть позже!", "пару секунд!", "примите позу ожидания", "одну секундочку!", "щя",
+                 "подождите"]
+        error_embed = disnake.Embed(
+            title=f":hourglass: | {choice(texts)}",
+            description=f"Время перед повторным использованием: `{round(error.retry_after)}` сек."
+        )
+        await inter.response.send_message(embed=error_embed, ephemeral=True)
+    elif isinstance(error, commands.CheckFailure):
+        texts = ["Извините!", "Простите!"]
+        error_embed = disnake.Embed(
+            title=f":hourglass: | {choice(texts)}",
+            description=f"Не удалось выполнить команду, для этого необходима роль: {error}"
+        )
+        await inter.response.send_message(embed=error_embed, ephemeral=True)
 
 
 for filename in os.listdir("./"):
