@@ -83,24 +83,23 @@ async def list(inter: disnake.ApplicationCommandInteraction):
 
 @bot.event
 async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, error):
-    """Обработчик ошибок"""
-    if isinstance(error, commands.CommandOnCooldown):
-        texts = ["Повторите позже", "чуть позже!", "пару секунд!", "примите позу ожидания", "одну секундочку!", "щя",
-                 "подождите"]
-        error_embed = disnake.Embed(
-            title=f":hourglass: | {choice(texts)}",
-            description=f"Время перед повторным использованием: `{round(error.retry_after)}` сек."
-        )
-        await inter.response.send_message(embed=error_embed, ephemeral=True)
-    elif isinstance(error, commands.CheckFailure):
-        texts = ["Извините!", "Простите!"]
-        error_embed = disnake.Embed(
-            title=f":hourglass: | {choice(texts)}",
-            description=f"Не удалось выполнить команду, для этого необходима роль: {error}"
-        )
-        await inter.response.send_message(embed=error_embed, ephemeral=True)
+	"""Обработчик ошибок"""
+	if isinstance(error, commands.CommandOnCooldown):
+		texts = ["Повторите позже", "чуть позже!", "пару секунд!", "примите позу ожидания", "одну секундочку!", "щя", "подождите"]
+		error_embed = disnake.Embed(
+			title=f":hourglass: | {choice(texts)}",
+			description=f"Время перед повторным использованием: `{round(error.retry_after)}` сек."
+		)
+		await inter.response.send_message(embed=error_embed, ephemeral=True)
+	elif isinstance(error, commands.CheckFailure):
+		texts = ["Извините!", "Простите!"]
+		error_embed = disnake.Embed(
+			title=f":hourglass: | {choice(texts)}",
+			description=f"Не удалось выполнить команду, для этого необходима роль: {error}"
+		)
+		await inter.response.send_message(embed=error_embed, ephemeral=True)
 	elif isinstance(error, commands.CommandError):
-    	texts = ["Извините!", "Простите!", "Ошибка"]
+		texts = ["Извините!", "Простите!", "Ошибка"]
 		error_embed = disnake.Embed(
 			title=f":warning: | {choice(texts)}",
 			description=f"Не удалось выполнить команду, код ошибки: {error}"
