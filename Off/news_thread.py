@@ -16,11 +16,12 @@ class NewsThreadCog(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         """Создать ветку для комментариев в канале новостей"""
-        if message.channel.id == 610146698681122827:
+        if message.channel.id == 610146698681122827 or message.channel.id == 825291849757491201:
             try:
                 await message.channel.create_thread(name="Комментарии", message=message, slowmode_delay=10)
             except Exception as e:
                 print(e)
+
 
 def setup(bot):
     bot.add_cog(NewsThreadCog(bot))
