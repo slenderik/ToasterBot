@@ -4,7 +4,7 @@ from disnake.ext import commands
 
 
 class Text(commands.Cog):
-    """ """
+    """Всё что связано с текстовыми каналами!"""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -21,7 +21,7 @@ class Text(commands.Cog):
         """
 
         # Создать ветку для комментариев в канале новостей и объявлений.
-        if message.channel.id == 610146698681122827 or message.channel.id == 825291849757491201:
+        if message.channel.id in (610146698681122827, 930121833561329675, 823826045568286741, 825291849757491201):
             try:
                 await message.channel.create_thread(name="Комментарии", message=message, slowmode_delay=10)
             except Exception as e:

@@ -7,9 +7,6 @@ import disnake
 from disnake.ext import commands
 from disnake.utils import get
 
-# тук-тук
-# к вам хочет зайти @человке
-
 voice_create_id = 997851742475669594
 server_id = 823820166478823462
 logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973455919251536/logo_bread.png?width=473" \
@@ -128,103 +125,6 @@ class LimitView(disnake.ui.View):
     @disnake.ui.button(custom_id="voice_view:user_limit_ten", label="10", style=disnake.ButtonStyle.blurple, row=4)
     async def user_limit_ten(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         await disable(self, button, inter)
-
-
-# class NameView(disnake.ui.View):
-#
-#     def __init__(self):
-#         super().__init__(timeout=None)
-#
-#     async def interaction_check(self, inter: disnake.MessageInteraction) -> bool:
-#         channel = await get_channel(inter.guild, inter.user.id)
-#
-#         if channel is None:  # человек не создавал голосовой канал
-#             await inter.response.send_message(
-#                 f"Создайте свой голосовой канал зайдя в <#{voice_create_id}>. "
-#                 f"Вам создадут и переместят вас в ваш канал. Находясь в нём, вы сможете "
-#                 f"использовать это!", ephemeral=True)
-#             return False
-#         elif channel is not None and inter.user.voice is not None:  # создавал и в войсе
-#
-#             if channel.id == inter.user.voice.channel.id:  # в своём войсе
-#                 return True
-#
-#             else:  # не в своём войсе
-#                 await inter.response.send_message(
-#                     f"Зайдите в свой голосовой канал {channel.mention}, чтобы настроить его!",
-#                     ephemeral=True)
-#                 return False
-#
-#         elif channel is not None and inter.user.voice is None:  # создавал но не войсе
-#             await inter.response.send_message(
-#                 f"Зайдите в свой голосовой канал {channel.mention}, чтобы настроить его!",
-#                 ephemeral=True)
-#             return False
-#
-#     @disnake.ui.button(label="Общение", style=disnake.ButtonStyle.green, row=0)
-#     async def talk(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-#         channel = await get_channel(inter.guild, inter.user.id)
-#         name = await channel_name(button.label)
-#         await channel.edit(name=name)
-#         await disable(self, button, inter)
-#
-#     @disnake.ui.button(label="Музыка", style=disnake.ButtonStyle.green, row=0)
-#     async def music(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-#         channel = await get_channel(inter.guild, inter.user.id)
-#         name = await channel_name(button.label)
-#         await channel.edit(name=name)
-#         await disable(self, button, inter)
-#
-#     @disnake.ui.button(label="Оффтоп", style=disnake.ButtonStyle.green, row=0)
-#     async def offtop(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-#         channel = await get_channel(inter.guild, inter.user.id)
-#         name = await channel_name(button.label)
-#         await channel.edit(name=name)
-#         await disable(self, button, inter)
-#
-#     # sw bw surv duels
-#     @disnake.ui.button(custom_id="name:skywars", label="SkyWars!", style=disnake.ButtonStyle.blurple, row=1)
-#     async def skywars(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-#         channel = await get_channel(inter.guild, inter.user.id)
-#         name = await channel_name(button.label)
-#         await channel.edit(name=name)
-#         await inter.response.edit_message(view=view)
-#         await view.wait()
-#         if view.server:
-#             await channel.edit(name=view.server)
-#
-#     @disnake.ui.button(label="Duesls!", style=disnake.ButtonStyle.blurple, row=1)
-#     async def duels(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-#         channel = await get_channel(inter.guild, inter.user.id)
-#         name = await channel_name(button.label)
-#         await channel.edit(name="Duels №1")
-#         await disable(self, button, inter)
-#
-#     @disnake.ui.button(label="Ввести название", style=disnake.ButtonStyle.gray, row=2)
-#     async def custom_name(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-#         await inter.response.send_modal(
-#             title="Вести собственное название",
-#             custom_id="voice:name",
-#             components=[disnake.ui.TextInput(
-#                 label="Название",
-#                 placeholder="Введите здесь название канала",
-#                 custom_id="name:custom_name",
-#                 max_length=50,
-#             )],
-#         )
-#         try:
-#             modal_inter: disnake.ModalInteraction = await inter.bot.wait_for(
-#                 "modal_submit",
-#                 check=lambda i: i.custom_id == "voice:name" and i.author.id == inter.author.id,
-#                 timeout=300
-#             )
-#         except TimeoutError:
-#             return
-#
-#         name = await channel_name(modal_inter.text_values["name:custom_name"])
-#         channel = await get_channel(inter.guild, inter.user.id)
-#         await channel.edit(name=name)
-#         await modal_inter.response.send_message(None)
 
 
 class Dropdown(disnake.ui.Select):
@@ -370,6 +270,10 @@ class VoiceView(disnake.ui.View):
 
 
 class VoiceCog(commands.Cog):
+    """
+    Всё что связано с войсами на сервере!
+    Ф: выключить NSFW, очистить чат войса, удалить и создать войс
+    """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -391,6 +295,8 @@ class VoiceCog(commands.Cog):
             description="ТУТ НАСТРОЙКИ, НАСТРАИВАТЬ НАДО"
         )
         await ctx.send(embed=embed, view=VoiceView())
+
+    # TODO тук-тук, к вам хочет зайти @человкек
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
