@@ -16,7 +16,7 @@ class StatusCog(commands.Cog):
         print(f"{self.bot.user} | {__name__}")
 
     @commands.command(aliases=["статус"])
-    @disnake.ext.commands.has_role(926395757509099551)
+    @disnake.ext.commands.has_role(929734233340121088)
     async def status(self, ctx: commands.Context, *, text):
         """Отправить сообщение о проблемах."""
         await ctx.send(f"[ <t:{round(time.mktime(datetime.datetime.now().timetuple()))}:R> ] {text}")
