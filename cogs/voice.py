@@ -35,30 +35,6 @@ cooldown_create = {}
 cooldown_name = {}
 
 
-async def cooldown_time(user_id: int, cooldown: dict) -> int:
-    """"Вернуть время на кулдаун."""
-    if cooldown.get(user_id, None) is not None:
-        cooldown = cooldown[user_id] - round(current_time())
-        return cooldown
-    else:
-        return 0
-
-
-def is_cooldown(user_id: int, cooldown: dict) -> bool:
-    """"Вернуть значение, находится ли пользователь в кулдауне."""
-    return bool(cooldown.get(user_id, False))
-
-
-async def add_cooldown(user_id: int, cooldown: dict, add_time: int = 30):
-    """Добавить в кулдауны время когда участник сможет использовать команду снова."""
-    time: int = round(current_time())
-    time += add_time  # время отката/кулдауна
-    cooldown = {user_id: time}
-    cooldown.update(cooldown)
-    await sleep(time)
-    cooldown.pop(user_id)
-
-
 class VoiceView(disnake.ui.View):
 
     def __init__(self):

@@ -78,24 +78,6 @@ class RulesCog(commands.Cog):
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
-    @commands.command(name="все-правила")
-    @commands.is_owner()
-    async def all_rules(self, ctx: commands.Context):
-        """Отправить все правила в чат."""
-        rules_embed = disnake.Embed(title="Правила сообщества в Discord")
-        # Добавляем все пункты правил к ембеду
-        for clause in range(1, number_of_rules + 1):
-            rules_embed.add_field(
-                name=f"{clause}. {rules_texts[str(clause) + '_заголовок']}",
-                value=rules_texts[str(clause) + '_содержание']
-            )
-        rules_embed.set_footer(text="Некоторые ситуации могут решаться на усмотрение администратора.")
-        picture_embed = disnake.Embed().set_image(
-            url="https://media.discordapp.net/attachments/914829522929614869/916700023541080074/20210629-105623.png")
-
-        embeds = (picture_embed, rules_embed)
-        await ctx.send(embeds=embeds)
-
     @commands.slash_command(name="правила")
     async def rule(self, inter: disnake.ApplicationCommandInteraction):
         pass
@@ -105,6 +87,8 @@ class RulesCog(commands.Cog):
         clause_to_add = {f"{clause}. {rules_texts[str(clause) + '_заголовок']}": clause}
         Rules_clauses.update(clause_to_add)
     Rules_clauses = commands.option_enum(Rules_clauses)
+    # Rules_clauses = {f"{clause}. {rules_texts[str(clause)]}": clause for clause in range(1, number_of_rules + 1)}
+    # Rules_clauses = commands.option_enum(Rules_clauses)
 
     @rule.sub_command(name="отправить")
     async def rule_clause(self, inter: disnake.ApplicationCommandInteraction, пункт: Rules_clauses,

@@ -56,7 +56,6 @@ class TicketModal(disnake.ui.Modal):
                     SelectOption(
                         label="Другое",
                         description="но всё равно связано с проектом BreadixWorld.",
-                        emoji="<:Discord:999582738640277544>",
                         value="3",
                     ),
                 ]
