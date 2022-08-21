@@ -18,17 +18,27 @@ class InvitesCog(commands.Cog):
         invites = await guild.invites()
         for invite in invites:
             if invite.code not in self.invites:
-                self.invites.update({invite.code: invite.uses})
+                self.invites.update({invite.code: invite})
 
         print(self.invites)
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite: disnake.Invite):
-        ...
+        # TODO сообщение в логи
+        print(self.invites)
+        print(invite.code)
+        self.invites.update({invite.code: invite})
+        print(self.invites)
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: disnake.Invite):
-        ...
+        # TODO сообщение в логи
+        print(self.invites)
+        print(invite.code)
+        if invite.code in self.invites:
+            await asyncio.sleep(10)
+            invites.pop(invite.code)
+            print(self.invites)
 
     @commands.Cog.listener()
     async def on_member_join(self, member: disnake.Member):
@@ -38,27 +48,42 @@ class InvitesCog(commands.Cog):
         invite_code = None
         print(invites)
 
-        for new_invite in new_invites:
-            print(new_invite.code)
-            print(new_invite.uses)
-
-            if new_invite.code in invites and new_invite.uses > invites[new_invite.code]:
-                print(f"Было: {invites[new_invite.code]}")
-                print(f"Стало: {new_invite.uses}")
-                print(new_invite.uses > invites[new_invite.code])
-                invite_code = new_invite
-
-            elif new_invite.code not in invites:
-                invite_code = new_invite
-
-            invites.update({new_invite.code: new_invite.uses})
-
-        print(f"ИНВАЙТ: {invite_code}")
-        new_codes = {x.code: x.uses for x in new_invites}
+        print(new_invites)
+        new_codes = [i.code for i in new_invites]
+        print(new_codes)
 
         for invite in list(invites):
             if invite not in new_codes:
-                invites.pop(invite)
+                print(f"1. {invite}")
+                print(f"2. {invite not in new_codes}")
+                invite_code = invites[invite]
+
+        print(f"ИНВАЙТ: {invite_code}")
+        print('_____________________________')
+
+        for new_invite in new_invites:
+            print(f"1. {new_invite.code}")
+            print(f"2. {new_invite.uses}")
+            print(f"3. {invites[new_invite.code]}")
+            print(f"4. {invites[new_invite.code].code}")
+
+            if new_invite.code in invites and new_invite.uses > invites[new_invite.code].uses:
+                print(f"Было: {invites[new_invite.code].uses}")
+                print(f"Стало: {new_invite.uses}")
+                print(new_invite.uses > invites[new_invite.code].uses)
+                invite_code = new_invite
+
+            # elif new_invite.code not in invites:
+            #     print(f"1. {new_invite.code}")
+            #     print(f"2. {invites}")
+            #     print(f" {new_invite.code not in invites}")
+            #     invite_code = new_invite
+            invites.update({new_invite.code: new_invite})
+
+            print(f"ИНВАЙТ: {invite_code}")
+            print('_____________________________')
+
+        print(f"ИНВАЙТ: {invite_code}")
 
         embed = disnake.Embed(
             title="Новый участник!",
