@@ -1,10 +1,8 @@
-# noinspection PyUnresolvedReferences
 import disnake
 from disnake.ext import commands
 
 
 class PingCog(commands.Cog):
-    """Команда задержки бота."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot

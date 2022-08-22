@@ -36,78 +36,140 @@ class GuideMenu(disnake.ui.View):
         await inter.response.edit_message(embed=embed, view=self)
 
 
-class Dropdown(disnake.ui.Select):
-    def __init__(self):
-        super().__init__(
-            placeholder="Нажмите чтобы выбрать роль гендера",
-            max_values=1,
-            options=[
-                disnake.SelectOption(label="Женский", emoji=":female_sign:", value="0"),
-                disnake.SelectOption(label="Мужской", emoji=":male_sign:", value="1"),
-            ]
-        )
-
-    async def callback(self, inter: disnake.MessageInteraction):
-        roles_id = [992760053503373442, 992760385167958046]  # первая - женс, вторая - муж
-        role = inter.guild.get_roles(roles_id[self.values[0]])
-        await inter.user.add_roles(role)
-        await inter.response.defer()
-
-
-async def delete_roles(member: disnake.Member, roles: list):
-    for role in roles:
-        if role in member.roles:
-            await member.delete_role()
+async def delete_roles(member: disnake.Member, roles: list[int]):
+    for role in member.roles:
+        if role.id in roles:
+            await member.remove_roles(role)
 
         continue
 
 
-class NotificationsSelect(disnake.ui.Select):
+class GenderSelect(disnake.ui.Select):
+
     def __init__(self):
         options = [
-            SelectOption(
-                label="SkyWars №1",
-                description="Если собираетесь тут играть",
-                emoji="🟦"
-            ),
+            SelectOption(label="Женский", emoji="♀", value="female"),
+            SelectOption(label="Мужской", emoji="♂", value="male"),
         ]
-
         super().__init__(
-            placeholder="Нажмите, чтобы выбрать уведомления!",
-            custom_id="roles:notifications",
+            placeholder="Нажмите чтобы выбрать роль гендера",
             max_values=1,
-            row=1,
             options=options
         )
 
     async def callback(self, inter: disnake.MessageInteraction):
-        ...
+        await delete_roles(inter.user, [992760053503373442, 992760385167958046])
+
+        roles_id = {"female": 992760053503373442, "male": 992760385167958046}  # TEST
+        role = inter.guild.get_role(roles_id[self.values[0]])
+        await inter.user.add_roles(role, reason="Информация")
+        await inter.response.edit_message("e 6 lo")
 
 
-class CustomizeRoles(disnake.ui.View):
+class ServersSelect(disnake.ui.Select):
 
-    def __init__(self, main_embed):
-        super().__init__(timeout=None)
-        self.main_embed = main_embed
-        self.add_item(SelectServer())
+    def __init__(self):
+        options = [
+            SelectOption(label="SkyWars", emoji="🌥️", value="sw"),
+            SelectOption(label="BedWars", emoji="🛏️", value="bw"),
+            SelectOption(label="Murder Mystery", emoji="🔪", value="mm"),
+            SelectOption(label="Duels", emoji="⚔", value="du"),
+            SelectOption(label="Survival", emoji="🏞️", value="su"),
+        ]
+        super().__init__(
+            placeholder="Нажмите, чтобы выбрать сервера!",
+            custom_id="roles:servers",
+            max_values=4,
+            options=options
+        )
 
-    @disnake.ui.button(label="Уведомления", style=disnake.ButtonStyle.blurple, custom_id="roles:notifications")
-    async def notifications(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        await inter.response.original_message_edit(view=None, ephemeral=True)
+    async def callback(self, inter: disnake.MessageInteraction):
+        await delete_roles(inter.user, [827481082349748224, 827481267783335946, 827481415078903839, 990694099923402804,
+                                        827481334150070292])
 
-    @disnake.ui.button(label="Устройства", style=disnake.ButtonStyle.blurple, custom_id="roles:devices")
-    async def devices(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        ...
+        roles_id = {
+            "sw": 827481082349748224,
+            "bw": 827481267783335946,
+            "mm": 827481415078903839,
+            "du": 990694099923402804,
+            "su": 827481334150070292,
+        }  # TEST
+        for role in self.values:
+            role = inter.guild.get_role(roles_id[role])
+            await inter.user.add_roles(role, reason="[Выбор роли]")
 
-    @disnake.ui.button(label="Любимые режимы", style=disnake.ButtonStyle.blurple, custom_id="roles:game_modes")
-    async def game_modes(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        ...
-
-    @disnake.ui.button(label="Гендер", style=disnake.ButtonStyle.blurple, custom_id="roles:gender")
-    async def gender(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        ...
+        await inter.response.edit_message("e 6 lo")
 
 
+class NotificationsSelect(disnake.ui.Select):
+
+    def __init__(self):
+        options = [
+            SelectOption(label="Новости проекта", emoji="🔔", value="all"),
+            SelectOption(label="Новости разработки", emoji="🔔", value="dev"),
+            SelectOption(label="Новости Discord", emoji="🔔", value="ds"),
+        ]
+        super().__init__(
+            placeholder="Нажмите, чтобы выбрать уведомления!",
+            custom_id="roles:notifications",
+            max_values=3,
+            options=options
+        )
+
+    async def callback(self, inter: disnake.MessageInteraction):
+        await delete_roles(inter.user, [828998214178963467, 823826182223036416, 828998721882292244])
+
+        roles_id = {
+            "all": 828998214178963467,
+            "dev": 823826182223036416,
+            "ds": 828998721882292244,
+        }  # TEST
+        for role in self.values:
+            role = inter.guild.get_role(roles_id[role])
+            await inter.user.add_roles(role, reason="[Выбор роли]")
+
+        await inter.response.edit_message("e 6 lo")
+
+
+class ServersView(disnake.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(ServersSelect())
+
+
+class GenderView(disnake.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(GenderSelect())
+
+
+class NotificationsView(disnake.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(NotificationsSelect())
+
+# class CustomizeRoles(disnake.ui.View):
+#
+#     def __init__(self, main_embed):
+#         super().__init__(timeout=None)
+#         self.main_embed = main_embed
+#         self.add_item(SelectServer())
+#
+#     @disnake.ui.button(label="Уведомления", style=disnake.ButtonStyle.blurple, custom_id="roles:notifications")
+#     async def notifications(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+#         await inter.response.original_message_edit(view=None, ephemeral=True)
+#
+#     @disnake.ui.button(label="Устройства", style=disnake.ButtonStyle.blurple, custom_id="roles:devices")
+#     async def devices(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+#         ...
+#
+#     @disnake.ui.button(label="Любимые режимы", style=disnake.ButtonStyle.blurple, custom_id="roles:game_modes")
+#     async def game_modes(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+#         ...
+#
+#     @disnake.ui.button(label="Гендер", style=disnake.ButtonStyle.blurple, custom_id="roles:gender")
+#     async def gender(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+#         ...
 # class InfoView(disnake.ui.View):
 #     def __init__(self):
 #         super().__init__(timeout=None)
@@ -169,7 +231,7 @@ class CustomizeRoles(disnake.ui.View):
 #         roles_embed = Embed(
 #             title=":zany_face: Выберите себе роле ",
 #             description="Все люди разные! Чтобы украсить свой профиль и лучше понять вас и тип новостей, которые вы "
-#                         "хотели бы получать, обязательно нажмите на одну из категорий ролей ниже, чтобы добавить роли, "
+#                         "хотели бы получать, обязательно нажмите на одну из категорий ролей ниже, чтобы добавить роли"
 #                         "применимые к вам. "
 #         )
 #         await inter.response.send_message(embed=roles_embed, view=CustomizeRoles(roles_embed), ephemeral=True)
@@ -180,8 +242,6 @@ class CustomizeRoles(disnake.ui.View):
 #         from cogs.tickets import TicketModal
 #         modal = TicketModal()
 #         await inter.response.send_modal(modal=modal)
-
-cooldown_ticket = {}
 
 
 class InfoCog(commands.Cog):
@@ -263,13 +323,13 @@ class InfoCog(commands.Cog):
                 await inter.response.send_message(embed=roles_embed, components=components, ephemeral=True)
 
             elif button_id == "info:ticket_apply":
-                from extension.cooldown import cooldown_time, is_cooldown, add_cooldown
-                print(inter.user.id, cooldown_ticket)
-                if is_cooldown(inter.user.id, cooldown_ticket):
-                    cooldown = await cooldown_time(member.id, cooldown_ticket)
-                    await after.channel.send(
+                from extension.cooldown import cooldown, add_cooldown
+                cooldown = await cooldown(inter.user.id, "tickets")
+
+                if cooldown is not None:
+                    await inter.response.send_message(
                         f"{inter.user.mention}, Используйте через {cooldown} сек!",
-                        delete_after=cooldown
+                        ephemeral=True
                     )
                     return
 
@@ -277,26 +337,21 @@ class InfoCog(commands.Cog):
                 modal = TicketModal()
                 await inter.response.send_modal(modal=modal)
                 print('1 ads')
-                await add_cooldown(inter.user.id, cooldown_ticket, 300)
+                await add_cooldown(inter.user.id, "tickets", 300)
                 print('2 ads')
 
         elif button_id.startswith("roles"):
             if button_id == "roles:notifications":
-                pass
+                await inter.response.send_message(view=NotificationsView(), ephemeral=True)
 
             elif button_id == "roles:devices":
-                pass
+                await inter.response.send_message("щя", view=NotificationsView(), ephemeral=True)
 
             elif button_id == "roles:game_modes":
-                pass
+                await inter.response.send_message(view=ServersView(), ephemeral=True)
 
             elif button_id == "roles:gender":
-                pass
-
-        elif button_id:
-            await inter.response.send_message(f"Неизвестный custom_id: {button_id}")
-        else:
-            await inter.response.send_message(f"Пока что не понятно как ты это сделал.\nОшибка: {inter.component}")
+                await inter.response.send_message(view=GenderView(), ephemeral=True)
 
 
 def setup(bot):

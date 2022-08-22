@@ -232,10 +232,6 @@ class VoiceCog(commands.Cog):
 
         elif inter.component.custom_id and not inter.component.custom_id.startswith("limit"):
             pass
-        elif inter.component.custom_id:
-            await inter.response.send_message(f"Неизвестный custom_id: {inter.component.custom_id}")
-        else:
-            await inter.response.send_message(f"Пока что не понятно как ты это сделал.\nОшибка: {inter.component}")
 
     @commands.Cog.listener("on_dropdown")
     async def voices_select_listener(self, inter: disnake.MessageInteraction):
@@ -249,11 +245,6 @@ class VoiceCog(commands.Cog):
 
             except Exception as e:
                 print(e)
-
-        elif inter.component.custom_id:
-            await inter.response.send_message(f"Неизвестный custom_id: {inter.component.custom_id}")
-        else:
-            await inter.response.send_message(f"Пока что не понятно как ты это сделал.{inter.component}")
 
 
 def setup(bot: commands.Bot) -> None:

@@ -164,6 +164,7 @@ class TicketsCog(commands.Cog):
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
+
     @commands.message_command(name="Создать билетик")
     @disnake.ext.commands.has_role(977974127304515614)
     async def ticket(self, inter: disnake.ApplicationCommandInteraction, message: disnake.Message):
