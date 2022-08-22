@@ -2,7 +2,6 @@
 import disnake
 from disnake.ext import commands
 
-
 class Text(commands.Cog):
     """Всё что связано с текстовыми каналами!"""
 
@@ -28,7 +27,7 @@ class Text(commands.Cog):
                 print(e)
 
         #
-        if message.channel.id == 998418781586079776:
+        if message.channel.id in (998418781586079776, 979088081909080064):
             try:
                 like = self.bot.get_emoji(983973450467147838)
                 dislike = self.bot.get_emoji(975689765338902569)
