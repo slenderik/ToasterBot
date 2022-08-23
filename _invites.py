@@ -100,7 +100,7 @@ class InvitesCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: Invite):
-        invite_delete_embed = get_embed(name="Приглашение было удалено", color=0xCE3636, invite=invite)
+        invite_delete_embed = get_embed(name="Приглашение было удалено", color=0xCE3636, invite=invites[invite.code])
         # from extension.logging import log_send
         await log_send(self.bot, invite_delete_embed)
 
