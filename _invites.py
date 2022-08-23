@@ -63,7 +63,7 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
                             f"От: {created_time} \n"
                             f"До: {expires_time} \n"
                             f"Время: {time}\n"
-                            f"Присутствие: {temporary} \n"
+                            f"Вход: {temporary} \n"
                             f"Использований: {uses}"
             )
         elif member is not None:
@@ -89,7 +89,7 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
                       f"От: {created_time} \n"
                       f"До: {expires_time} \n"
                       f"Время: {time} \n"
-                      f"Присутствие: {temporary} \n"
+                      f"Вход: {temporary} \n"
                       f"Использований: {invite.uses} / {max_usage}",
                 inline=False
             )
