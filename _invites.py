@@ -22,11 +22,11 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
     )
     if invite is not None:
         if invite.expires_at is not None:
-            created_time = f"<t:{round(invite.created_at.timestamp())}> (<t:{round(invite.created_at.timestamp())}:R>)"
+            created_time = f"<t:{round(invite.created_at.timestamp())}> <t:{round(invite.created_at.timestamp())}:R>"
         else:
             created_time = "`Не известно`"
         if invite.expires_at is not None:
-            expires_time = f"<t:{round(invite.expires_at.timestamp())}> (<t:{round(invite.expires_at.timestamp())}:R>)"
+            expires_time = f"<t:{round(invite.expires_at.timestamp())}> <t:{round(invite.expires_at.timestamp())}:R>"
         else:
             expires_time = "∞"
         channel = f"{invite.channel.mention} (`{invite.channel.name}`)" if invite.channel is not None else "`Не известно`"
@@ -48,8 +48,8 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
                             f"Использований: {uses}"
             )
         elif member is not None:
-            create_time = f"<t:{round(member.created_at.timestamp())}> (<t:{round(member.created_at.timestamp())}:R>)"
-            join_time = f"<t:{round(member.joined_at.timestamp())}> (<t:{round(member.joined_at.timestamp())}:R>)"
+            create_time = f"<t:{round(member.created_at.timestamp())}> <t:{round(member.created_at.timestamp())}:R>"
+            join_time = f"<t:{round(member.joined_at.timestamp())}> <t:{round(member.joined_at.timestamp())}:R>"
             embed = Embed(
                 title=name,
                 color=color,
