@@ -1,7 +1,7 @@
 from disnake import Embed
 
-guild_id = 823820166478823462
-log_channel_id = 857298133943451678 #TEST
+guild_id = 610142528271810560
+log_channel_id = 988330342391873587
 
 
 async def log_send(bot, embed: Embed):
