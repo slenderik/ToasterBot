@@ -6,17 +6,17 @@ import typing
 import disnake
 from disnake.ext import commands
 
-game = disnake.Game("play.breadixpe.ru")
-
 bot = commands.Bot(
-    prefix=".",
-    status=disnake.Status.online,
-    activity=game,
+    command_prefix=".",
+    test_guilds=[823820166478823462],
+    intents=disnake.Intents.all(),
+    activity=disnake.Game("play.breadixpe.ru:19132"),
+    status=disnake.Status.idle
 )
 bot.remove_command("help")
+disnake.Embed.set_default_color(283593)
 
 #materials and another things
-disnake.Embed.set_default_color(283593)
 logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973455919251536/logo_bread.png"
 admin_server_id = [823820166478823462]
 
