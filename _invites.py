@@ -21,7 +21,7 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
         timestamp=datetime.now()
     )
     if invite is not None:
-        if invite.expires_at is not None:
+        if invite.created_at is not None:
             created_time = f"<t:{round(invite.created_at.timestamp())}> <t:{round(invite.created_at.timestamp())}:R>"
         else:
             created_time = "`Не известно`"
@@ -29,11 +29,28 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
             expires_time = f"<t:{round(invite.expires_at.timestamp())}> <t:{round(invite.expires_at.timestamp())}:R>"
         else:
             expires_time = "∞"
-        channel = f"{invite.channel.mention} (`{invite.channel.name}`)" if invite.channel is not None else "`Не известно`"
-        creator = invite.inviter.mention if invite.inviter is not None else "`Не известно`"
+        if invite.max_age is not None:
+            convert_time = {
+                0: "∞",
+                1800: "30 минут",
+                3600: "1 час",
+                21600: "6 часов",
+                43200: "12 часов",
+                86400: "1 день",
+                604800: "7 дней (неделя)"
+            }
+            time = f"`{convert_time[invite.max_age]}`"
+        else:
+            time = "`Не известно`"
+        if invite.temporary is True:
+            temporary = f"Временное. Приглашённые участники будут удалены после выключении ссылки"
+        else:
+            temporary = "`Навсегда`"
 
+        channel = f"{invite.channel.mention} `{invite.channel.name}`" if invite.channel is not None else "`Не известно`"
+        creator = invite.inviter.mention if invite.inviter is not None else "`Не известно`"
         max_usage = invite.max_uses if invite.max_uses != 0 else "∞"
-        uses = f"{invite.uses} / {max_usage}" if invite.uses is not None else "`Не известно`"
+        uses = f"`{invite.uses} / {max_usage}`" if invite.uses is not None else "`Не известно`"
 
         if member is None:
             embed = Embed(
@@ -42,9 +59,11 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
                 timestamp=datetime.now(),
                 description=f"```{invite.url}```"
                             f"Создатель: {creator} \n"
+                            f"Канал: {channel} \n"
                             f"От: {created_time} \n"
                             f"До: {expires_time} \n"
-                            f"Канал: {channel} \n"
+                            f"Время: {time}\n"
+                            f"Присутствие: {temporary} \n"
                             f"Использований: {uses}"
             )
         elif member is not None:
@@ -65,10 +84,12 @@ def get_embed(name: str, color: int = None, member: Member = None, invite: Invit
             ).add_field(
                 name="Приглашение",
                 value=f"```{invite.url}```"
-                      f"Приглашён: {creator} \n"
+                      f"Пригласил: {creator} \n"
+                      f"Канал: {channel} \n"
                       f"От: {created_time} \n"
                       f"До: {expires_time} \n"
-                      f"Канал: {channel} \n"
+                      f"Время: {time} \n"
+                      f"Присутствие: {temporary} \n"
                       f"Использований: {invite.uses} / {max_usage}",
                 inline=False
             )
