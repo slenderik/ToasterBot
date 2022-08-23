@@ -5,7 +5,13 @@ from disnake import Invite, Member, Embed
 from disnake.ext import commands
 
 guild_id = 610142528271810560
+log_channel_id = 988330342391873587
 invites = {}
+
+async def log_send(bot, embed: Embed):
+    guild = bot.get_guild(guild_id)
+    channel = guild.get_channel(log_channel_id)
+    await channel.send(embed=embed)
 
 
 def get_embed(name: str, color: int = None, member: Member = None, invite: Invite = None):
@@ -89,13 +95,13 @@ class InvitesCog(commands.Cog):
         invites.update({invite.code: invite})
 
         invite_create_embed = get_embed(name="Приглашение было создано", color=0x36CE36, invite=invite)
-        from extension.logging import log_send
+        # from extension.logging import log_send
         await log_send(self.bot, invite_create_embed)
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: Invite):
         invite_delete_embed = get_embed(name="Приглашение было удалено", color=0xCE3636, invite=invite)
-        from extension.logging import log_send
+        # from extension.logging import log_send
         await log_send(self.bot, invite_delete_embed)
 
         if invite.code in invites:
@@ -121,7 +127,7 @@ class InvitesCog(commands.Cog):
 
         member_join_embed = get_embed(name="Новый участник!", member=member, invite=invite_code)
 
-        from extension.logging import log_send
+        #from extension.logging import log_send
         await log_send(self.bot, member_join_embed)
 
 
