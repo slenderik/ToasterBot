@@ -8,6 +8,7 @@ from disnake.ext import commands
 
 bot = commands.Bot(
     command_prefix=".",
+	test_guilds=[610142528271810560],
     intents=disnake.Intents.all(),
     activity=disnake.Game("play.breadixpe.ru:19132"),
     status=disnake.Status.idle
