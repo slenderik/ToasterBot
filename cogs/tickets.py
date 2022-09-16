@@ -1,8 +1,15 @@
 import datetime
 import time
-
 import disnake
-from disnake import SelectOption
+import io
+# import reportlab
+
+from canvas import Canvas
+
+# from reportlab.pdfgen.canvas import Canvas
+
+from fpdf import FPDF
+from disnake import SelectOption, Embed
 from disnake.ext import commands
 from disnake.ui import TextInput, Select
 
@@ -24,6 +31,38 @@ async def ticket_count(category) -> int:
     return n
 
 
+def add_image(image_path):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.image(image_path, x=10, y=8, w=100)
+    pdf.set_font("Arial", size=12)
+    pdf.ln(85)  # ниже на 85
+    pdf.cell(200, 10, txt="{}".format(image_path), ln=1)
+    pdf.output("add_image.pdf")
+
+def transcript():
+    ...
+
+
+options = [
+    SelectOption(label="Я сделал это случайно",
+                 description="Случайно открыли, или просто хотели посмотреть что это такое"),
+    SelectOption(label="Моя проблема/вопрос уже решена ", description=""),
+]
+
+
+class TicketView(disnake.ui.View):
+
+    def __init__(self):
+        super().__init__()
+        self.value = None
+
+    @disnake.ui.button(label="Закрыть обращение", style=disnake.ButtonStyle.green)
+    async def confirm(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        await inter.response.send_message("Confirming", ephemeral=True)
+        self.stop()
+
+
 class TicketModal(disnake.ui.Modal):
     def __init__(self, target_user=None) -> None:
         self.target_user = target_user
@@ -43,7 +82,7 @@ class TicketModal(disnake.ui.Modal):
                 options=[
                     SelectOption(
                         label="Discord",
-                        description="Всё что связано с сооществом в Discord",
+                        description="Всё что связано с сообществом в Discord",
                         emoji="<:Discord:999582738640277544>",
                         value="1",
                     ),
@@ -98,6 +137,7 @@ class TicketModal(disnake.ui.Modal):
 
     async def callback(self, inter: disnake.ModalInteraction) -> None:
         user = inter.user
+        target_user = self.target_user
 
         category = inter.bot.get_channel(tickets_category_id)
         permission = {
@@ -112,14 +152,11 @@ class TicketModal(disnake.ui.Modal):
                 continue
             embed.add_field(name=key, value=value, inline=False)
 
-        if self.target_user is not None:
-            if self.target_user.bot:
-                await inter.response.send_message(
-                    f"ЭЙ, {user.mention}, {self.target_user.mention} это бот!",
-                    ephemeral=True
-                )
-                return
+        if target_user is not None and target_user.bot:
+            await inter.response.send_message(f"Эй, {user.mention}, {target_user.mention} это бот!", ephemeral=True)
+            return
 
+        elif target_user is not None:
             creator_user = inter.user
             channel = await category.create_text_channel(
                 name=f"{await ticket_count(category)}︱{user.display_name}",
@@ -127,9 +164,9 @@ class TicketModal(disnake.ui.Modal):
                 topic=f":penguin: **Информация**"
                       f"\nСоздан: **{creator_user.name}** ({creator_user.id})"
                       f"\nДля: **{user.name}** ({user.id}) "
-                      f"\nВремя: <t:{round(time.mktime(datetime.datetime.now().timetuple()))}:R>",
+                      f"\nВремя: <t:{round(datetime.datetime.now().timestamp())}:R>",
                 reason=f"{creator_user.name}({creator_user.id})"
-            )
+            )  # time.mktime(datetime.datetime.now().timetuple()
             await channel.send(f"Hey, {target_user.mention}, для тебя создал тикет {user.mention}!", embed=embed)
 
         else:
@@ -143,12 +180,14 @@ class TicketModal(disnake.ui.Modal):
             )
             await channel.send(f"Hey, {user.mention}", embed=embed)
 
-        await inter.response.send_message(
-            embed=disnake.Embed(
-                title="🎫 Билетик создан",
-                description=f"Для: {user.mention} ({user.id}) \nКанал: {channel.mention}"),
-            ephemeral=True
-        )
+        if self.target_user is not None:
+            text = f"Для: {user.mention} ({user.id}) \nКанал: {channel.mention}"
+        else:
+            text = f"Вам в {channel.mention}"
+
+        embed = Embed(title="🎫 Обращение создано создан", description=text)
+
+        await inter.response.send_message(emebed=embed, ephemeral=True)
 
     async def on_error(self, error: Exception, inter: disnake.ModalInteraction) -> None:
         await inter.response.send_message(f"Что-то пошло ни так. Ошибка: {error}", ephemeral=True)
@@ -164,6 +203,63 @@ class TicketsCog(commands.Cog):
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
+    @commands.command(name="t1")
+    async def t1(self, ctx: commands.Context):
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="Welcome to PDF!", ln=1, align="C")
+        # pdf.set_author("BreadixWorld")
+        a = pdf.output(dest='S').binary()
+        # b = io.BytesIO(a)
+        # view = b.getbuffer()
+        await ctx.send(file=disnake.File(fp=view))
+
+    @commands.command(name="t2")
+    async def t2(self, ctx: commands.Context):
+        a = Canvas('Welcome to PDF').hist(data).binary()
+        await ctx.send(file=disnake.File(fp=view))
+
+    @commands.command(name="tc")
+    async def transcript(self, ctx: commands.Context):
+        channel = ctx.channel
+
+        print(f"Channel: {ctx.channel.name} ID: ({ctx.channel.id})")
+
+        count = 0
+        async for message in channel.history(limit=None):
+            roles_ids = [i.id for i in message.author.roles]
+            roles = [977974127304515614, 823822238867390484]
+            name = message.author.display_name if any(elem in roles_ids for elem in roles) else message.author.id
+
+            if message.content and message.content != " ":
+                print(f"{count} | {name}: {message.content}")
+                count += 1
+
+            if message.embeds:
+                for embed in message.embeds:
+                    print(f"{count} | {name}:")
+                    print("----E-M-B-E-D----")
+                    embed = embed.to_dict()
+                    for key, value in embed.items():
+                        print(f"{count} | {key}: {value}")
+                        count += 1
+                    print("------------------")
+                    count += 1
+
+            files = message.attachments
+            for file in files:
+                print("------------------")
+                try:
+                    file = await file.to_file()
+                    print(file)
+                    print(file.fp)
+                except Exception as e:
+                    print(f"ERORR: {e}")
+                print("------------------")
+            count += 1
+
+        await ctx.send(f"anime {count}")
 
     @commands.message_command(name="Создать билетик")
     @disnake.ext.commands.has_role(977974127304515614)
@@ -174,7 +270,7 @@ class TicketsCog(commands.Cog):
 
     # @ticket.error
     # async def tickets(self, inter: disnake.ApplicationCommandInteraction, error):
-    #     if isinstance(error, commands.MissingRole):
+    #     if isinstance(erro
 
 
 def setup(bot):
