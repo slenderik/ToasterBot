@@ -22,6 +22,7 @@ class PurchasesCog(commands.Cog):
         ----------
         никнейм: Введите никнейм игрока, покупки которого хотите посмотреть
         """
+        print(inter.application_id)
         nickname = str(никнейм)
         nicknames = split(" |, | ,|,", nickname)
         purchase_embed = Embed(title=":shopping_bags: Покупки")
