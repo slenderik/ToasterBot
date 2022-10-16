@@ -112,7 +112,7 @@ class PurchasesCog(commands.Cog):
             # Состовляем текст.
             if post_count == 0:
                 title = f":shopping_bags: {get_name(name)}"
-                value = choice(("`Нет покупок`", "`Пусто`", "`Нужно купить`"))
+                value = choice(("`Нет покупок :(`", "`Тут пустовато..`", "`Можно было бы и купить!`"))
             else:
                 title = f":shopping_bags: {get_name(name)} ({post_count})"
                 value = f"{post_text}"
@@ -123,7 +123,17 @@ class PurchasesCog(commands.Cog):
         for nickname in nicknames:
             await add_embed(nickname)
 
-        await inter.response.send_message(embeds=embeds, ephemeral=True)
+        store_button = disnake.ui.View()
+        store_button.add_item(
+            disnake.ui.Button(
+                emoji="🛍️",
+                label="Купить донат можно здесь!",
+                style=disnake.ButtonStyle.url,
+                url="https://shop.breadixpe.ru/"
+            )
+        )
+
+        await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
 
 
 def setup(bot):
