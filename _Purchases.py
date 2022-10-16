@@ -1,9 +1,10 @@
+from random import choice
+from re import split
+
 import disnake
 from aiohttp import ClientSession
-from re import split
 from disnake import Embed
 from disnake.ext import commands
-from random import choice
 
 
 class PurchasesCog(commands.Cog):
@@ -24,7 +25,6 @@ class PurchasesCog(commands.Cog):
         """
         nickname = str(никнейм)
         nicknames = split(" |, | ,|,", nickname)
-        purchase_embed = Embed(title=":shopping_bags: Покупки")
 
         async def request_to_donations(search_nickname) -> object:
             """Вернуть информацию поиска по никнейму, в группе с донатами."""
@@ -48,14 +48,15 @@ class PurchasesCog(commands.Cog):
 
         def get_server(text) -> str:
             """Вернуть сервер из текста"""
-            servers = ("bedwars", "skywars", "murder mystery", "murdermystery", "survival")
+            servers = ("bedwars", "skywars", "murder mystery", "murdermystery", "survival", "duels")
             numbers = ("№1", "№2", "№3")
             server_output = {
                 "bedwars": "BW",
                 "skywars": "SW",
                 "murder mystery": "MM",
                 "murdermystery": "MM",
-                "survival": "surv"
+                "survival": "surv",
+                "duels": "duels"
             }
             for server in servers:
                 if int(text.find(server)) != -1:
@@ -77,10 +78,12 @@ class PurchasesCog(commands.Cog):
         def get_nickname(text) -> str:
             """Вернуть никнейм из текста"""
             text = text[6:]
+
             if int(text.find("купил")) != -1:
                 return text[:int(text.find("купил")) - 1]
-            elif int(text.find("приобрел")) != -1:
-                return text[:int(text.find("купил")) - 1]
+
+            if int(text.find("приобрел")) != -1:
+                return text[:int(text.find("приобрел")) - 1]
 
         def get_url(response: object, i: int) -> str:
             """Вернуть ссылку на пост ВКонтакте"""
@@ -92,32 +95,35 @@ class PurchasesCog(commands.Cog):
             """"Вернуть изменённый никнейм"""
             return text.replace("_", "\\_")
 
-        async def add_field(name):
+        embeds = []
+
+        async def add_embed(name):
             """Добавить строчку постов по никнейму."""
-            post_text = ""
             response = await request_to_donations(name)
             post_count = response["response"]["count"]
 
-            # добавляем текст всех покупок
+            # Состовляем текст всех покупок
+            post_text = ""
             for i in range(post_count):
                 text = response["response"]["items"][i]["text"].lower()
-                post_text += f"`{i + 1}.` [{get_nickname(text)} | {get_server(text)} | {get_purchase(text)}]({get_url(response, i)})\n "
+                post_text += f"`{i + 1}.` [{get_nickname(text)} | {get_server(text)} | " \
+                             f"{get_purchase(text)}]({get_url(response, i)})\n "
 
-            # добавляем строку с никнеймом.
+            # Состовляем текст.
             if post_count == 0:
-                title = get_name(name)
-                none = ("`Нет покупок`", "`Пусто`", "`Нужно купить`")
-                value = choice(none)
+                title = f":shopping_bags: {get_name(name)}"
+                value = choice(("`Нет покупок`", "`Пусто`", "`Нужно купить`"))
             else:
-                title = f"{get_name(name)} ({post_count})"
+                title = f":shopping_bags: {get_name(name)} ({post_count})"
                 value = f"{post_text}"
-            purchase_embed.add_field(name=title, value=value, inline=False)
+
+            embeds.append(Embed(title=title, description=value))
 
         # Для каждого никнейма добавляем строчку с результатом поиска покупок
         for nickname in nicknames:
-            await add_field(nickname)
+            await add_embed(nickname)
 
-        await inter.response.send_message(embed=purchase_embed, ephemeral=True)
+        await inter.response.send_message(embeds=embeds, ephemeral=True)
 
 
 def setup(bot):
