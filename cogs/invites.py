@@ -1,71 +1,100 @@
-from datetime import datetime
 from asyncio import sleep
+from datetime import datetime
 
 from disnake import Invite, Member, Embed
 from disnake.ext import commands
 
-guild_id = 823820166478823462
+from utils.config import guild_id
+
 invites = {}
 
 
-def get_embed(name: str, color: int = None, member: Member = None, invite: Invite = None):
+def get_embed(name: str, invite: Invite, color: int = None, member: Member = None):
+    if invite.created_at is not None:
+        created_time = f"<t:{round(invite.created_at.timestamp())}> <t:{round(invite.created_at.timestamp())}:R>"
+    else:
+        created_time = "`Не известно`"
+
+    if invite.expires_at is not None:
+        expires_time = f"<t:{round(invite.expires_at.timestamp())}> <t:{round(invite.expires_at.timestamp())}:R>"
+    else:
+        expires_time = "`∞`"
+
+    if invite.temporary is True:
+        temporary = f"Временное. Приглашённые участники будут удалены после выключении ссылки"
+    else:
+        temporary = "`Навсегда`"
+
+    convert_time = {
+        0: "∞",
+        1800: "30 минут",
+        3600: "1 час",
+        21600: "6 часов",
+        43200: "12 часов",
+        86400: "1 день",
+        604800: "7 дней (неделя)"
+    }
+    time = f"`{convert_time[invite.max_age]}`" if invite.max_age is not None else "`Не известно`"
+    channel = f"{invite.channel.mention} `{invite.channel.name}`" if invite.channel is not None else "`Не известно`"
+    creator = invite.inviter.mention if invite.inviter is not None else "`Не известно`"
+    max_usage = invite.max_uses if invite.max_uses != 0 else "∞"
+    uses = f"`{invite.uses} / {max_usage}`" if invite.uses is not None else "`Не известно`"
+
     embed = Embed(
         title=name,
-        description=f"Упс.. Что-то пошло ни так",
+        color=color,
         timestamp=datetime.now()
     )
-    if invite is not None:
-        if invite.expires_at is not None:
-            created_time = f"<t:{round(invite.created_at.timestamp())}> (<t:{round(invite.created_at.timestamp())}:R>)"
-        else:
-            created_time = "`Не известно`"
-        if invite.expires_at is not None:
-            expires_time = f"<t:{round(invite.expires_at.timestamp())}> (<t:{round(invite.expires_at.timestamp())}:R>)"
-        else:
-            expires_time = "∞"
-        channel = f"{invite.channel.mention} (`{invite.channel.name}`)" if invite.channel is not None else "`Не известно`"
-        creator = invite.inviter.mention if invite.inviter is not None else "`Не известно`"
-
-        max_usage = invite.max_uses if invite.max_uses != 0 else "∞"
-        uses = f"{invite.uses} / {max_usage}" if invite.uses is not None else "`Не известно`"
-
-        if member is None:
-            embed = Embed(
-                title=name,
-                color=color,
-                timestamp=datetime.now(),
-                description=f"```{invite.url}```"
-                            f"Создатель: {creator} \n"
-                            f"От: {created_time} \n"
-                            f"До: {expires_time} \n"
-                            f"Канал: {channel} \n"
-                            f"Использований: {uses}"
-            )
-        elif member is not None:
-            create_time = f"<t:{round(member.created_at.timestamp())}> (<t:{round(member.created_at.timestamp())}:R>)"
-            join_time = f"<t:{round(member.joined_at.timestamp())}> (<t:{round(member.joined_at.timestamp())}:R>)"
-            embed = Embed(
-                title=name,
-                color=color,
-                timestamp=datetime.now()
-            ).add_field(
-                name="Участник",
-                value=f"```{member.name}#{member.discriminator} ({member.display_name}#{member.discriminator})```\n"
-                      f"Упоминание: {member.mention} \n"
-                      f"ID: `{member.id}` \n"
-                      f"Создан: {created_time}\n"
-                      f"Зашёл: {join_time}",
-                inline=False
-            ).add_field(
-                name="Приглашение",
-                value=f"```{invite.url}```"
-                      f"Приглашён: {creator} \n"
-                      f"От: {created_time} \n"
-                      f"До: {expires_time} \n"
-                      f"Канал: {channel} \n"
-                      f"Использований: {invite.uses} / {max_usage}",
-                inline=False
-            )
+    event_name = "`Не известно`" if invite.guild_scheduled_event is None else f"`{invite.guild_scheduled_event.name}`"
+    event_status = "`Не известно`" if invite.guild_scheduled_event is None else f"`{invite.guild_scheduled_event.status}`"
+    application = "Не известно" if invite.target_application is None else invite.target_application
+    welcome_screen = "Не известно" if invite.guild_welcome_screen is None else invite.guild_welcome_screen.enabled
+    embed.add_field(
+        name="Гильдия",
+        value=f"```{invite.guild.name}```"
+              f"Участников: {invite.approximate_member_count} Активных: {invite.approximate_presence_count} \n"
+              f"Ивент: {event_name} Статус: {event_status} \n"
+              f"Приложение: `{application}` \n"
+              f"Экран приветствия: `{welcome_screen}` \n"
+              f"Тип: `{invite.target_type}` Пользователь: `{invite.target_user}` \n",
+        inline=False
+    )
+    if member is None:
+        embed.add_field(
+            name="Приглашение",
+            value=f"```{invite.url}```"
+                  f"Создатель: {creator} \n"
+                  f"Канал: {channel} \n"
+                  f"От: {created_time} \n"
+                  f"До: {expires_time} \n"
+                  f"Время: {time}\n"
+                  f"Вход: {temporary} \n"
+                  f"Использований: {uses}",
+            inline=False
+        )
+    elif member is not None:
+        create_time = f"<t:{round(member.created_at.timestamp())}> <t:{round(member.created_at.timestamp())}:R>"
+        join_time = f"<t:{round(member.joined_at.timestamp())}> <t:{round(member.joined_at.timestamp())}:R>"
+        embed.add_field(
+            name="Участник",
+            value=f"```{member.name}#{member.discriminator} ({member.display_name}#{member.discriminator})```\n"
+                  f"Упоминание: {member.mention} \n"
+                  f"ID: `{member.id}` \n"
+                  f"Создан: {created_time}\n"
+                  f"Зашёл: {join_time}",
+            inline=False
+        ).add_field(
+            name="Приглашение",
+            value=f"```{invite.url}```"
+                  f"Пригласил: {creator} \n"
+                  f"Канал: {channel} \n"
+                  f"От: {created_time} \n"
+                  f"До: {expires_time} \n"
+                  f"Время: {time} \n"
+                  f"Вход: {temporary} \n"
+                  f"Использований: `{invite.uses} / {max_usage}`",
+            inline=False
+        )
     return embed
 
 
@@ -94,7 +123,7 @@ class InvitesCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: Invite):
-        invite_delete_embed = get_embed(name="Приглашение было удалено", color=0xCE3636, invite=invite)
+        invite_delete_embed = get_embed(name="Приглашение было удалено", color=0xCE3636, invite=invites[invite.code])
         from extension.logging import log_send
         await log_send(self.bot, invite_delete_embed)
 

@@ -1,27 +1,15 @@
-# выключить NSFW, очистить чат войса, удалить и создать войс
+# выключить NSFW, очистить чат войса, удалить и создать войс, отключить из афк
 from asyncio import sleep
 from random import choice
-from time import time as current_time
 
 import disnake
-from disnake import SelectOption, Embed
-from disnake.ext import commands
-from disnake.ui import Button, Select
 from disnake.utils import get
-
-voice_create_id = 997851742475669594
-server_id = 823820166478823462
-logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973455919251536/logo_bread.png?width=473" \
-           "&height=473 "
+from disnake.ext import commands
+from disnake import SelectOption, Embed
+from disnake.ui import Button, Select
+from utils.config import afk_channel_id
 
 custom_rooms = {}
-
-
-def channel_name(name: str) -> str:
-    """Вернуть название канала с учётом разных штук."""
-    if "🔞" in name:
-        name = f"[🔞] {name}"
-    return name
 
 
 async def get_channel(guild: object, user_id: int) -> object | None:
@@ -129,9 +117,10 @@ class VoiceCog(commands.Cog):
     # TODO тук-тук, к вам хочет зайти @человкек
 
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
+    async def on_voice_state_update(self, member: disnake.Member, before: disnake.VoiceChannel,
+                                    after: disnake.VoiceChannel):
         """"Создать, удалить канал"""
-        # Eсли участник зашёл/перешёл/вышел.
+        # Если участник зашёл/перешёл/вышел.
         # before.channel = None - зашел в гс сервера
         # after.channel = None - вышел с гс сервера
 
@@ -140,7 +129,7 @@ class VoiceCog(commands.Cog):
             try:
                 await before.channel.edit(nsfw=False, reason="Канал пустой, зачем его оставлять с матом?")
             except Exception as e:
-                print(e)
+                print(f"{__name__} Error: {e}")
 
         # очистить чат
         if before.channel and before.channel.voice_states == {} and before.channel.id not in custom_rooms \
@@ -148,7 +137,17 @@ class VoiceCog(commands.Cog):
             try:
                 await before.channel.purge(limit=None)
             except Exception as e:
-                print(e)
+                print(f"{__name__} Error: {e}")
+
+        # отключить отошедших
+        if after.channel is not None and after.channel.id == afk_channel_id:
+            await after.channel.send("Эй, похоже вы немного отошли? Надеемся с вами всё хорошо ^^ Мы вас отключим от "
+                                     "этого канала через пару минут.")
+            await sleep(300)
+            try:
+                await member.move_to(None)
+            except Exception as e:
+                print(f"{__name__} Error: {e}")
 
         # удаляем канал
         if before.channel and before.channel.id in custom_rooms and before.channel.voice_states == {}:
@@ -157,7 +156,7 @@ class VoiceCog(commands.Cog):
                 await before.channel.delete(reason="[Собственные Каналы] Канал пуст")
                 return
             except Exception as e:
-                print(e)
+                print(f"{__name__} Error: {e}")
 
         # создаём канал
         if after.channel and after.channel.id == voice_create_id:
@@ -225,7 +224,7 @@ class VoiceCog(commands.Cog):
                 # если юзер не в кулдаунде
                 button = inter.component
                 channel = await get_channel(inter.guild, inter.user.id)
-                name = channel_name(button.label)
+                name = button.label
                 await channel.edit(name=name)
                 embed = disnake.Embed(title=f"Название: {name}")
                 await inter.response.edit_message(embed=embed)
@@ -238,13 +237,13 @@ class VoiceCog(commands.Cog):
         if inter.component.custom_id and inter.component.custom_id.startswith("voice_name"):
             try:
                 channel = await get_channel(inter.guild, inter.user.id)
-                name = channel_name(inter.values[0])
+                name = inter.values[0]
                 await channel.edit(name=name)
                 embed = disnake.Embed(title=f"Название: {name}")
                 await inter.response.edit_message(embed=embed)
 
             except Exception as e:
-                print(e)
+                print(f"{__name__} Error: {e}")
 
 
 def setup(bot: commands.Bot) -> None:

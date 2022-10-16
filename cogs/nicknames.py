@@ -204,20 +204,21 @@ class DBTest(commands.Cog):
         else:
             nicknames = f"У вас нет ещё привязанных никнеймов. Их можно привязать через команду" \
                         f"/nickname add (nicknames)` "
+        create_time = f" <t:{round(user.created_at.timestamp())}:R> <t:{round(user.created_at.timestamp())}:R>"
         embed = Embed(
             title="Профиль",
             description=f"**Общие сведения** \n"
                         f"> Пользователь: **{user.name} {user.discriminator}** \n"
                         f"> ID: `{user.id}` \n"
                         f"> Упоминание: {user.mention} \n"
-                        f"> Создан: <t:{user.created_at}:R> \n"
+                        f"> Создан: {create_time} \n"
                         f"> Цвет баннера: {user.banner}"
         )
         embed.add_field(
             name="Сервер",
             value=f"> Никнейкм: {user.nick} \n"
                   f"> Роль: {user.top_role.mention} \n"
-                  f"> Присоединился: `{user.joined_at}",
+                  f"> Присоединился: <t:{round(user.joined_at.timestamp())}> <t:{round(user.joined_at.timestamp())}:R>",
             inline=False
         )
         embed.add_field(

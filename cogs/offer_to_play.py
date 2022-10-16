@@ -1,4 +1,3 @@
-# noinspection PyUnresolvedReferences
 from enum import Enum
 
 import disnake
@@ -71,6 +70,7 @@ class ChatCog(commands.Cog):
         сервер: либо выберите сервер!
         """
         offer_embed = Embed(title="Предлагает сыграть!" if сервер is None else f"Предлагает сыграть на {сервер}!")
+        offer_embed.set_footer(text="Нажмите на кнопку, чтобы откликнуться для игры. Повторное нажатие - выйти из списка желающих.")
         offer_embed.set_author(name=inter.user.display_name, icon_url=inter.user.display_avatar.url)
         view = PlayButton(embed=offer_embed, author=inter.user)
         await inter.response.send_message(embed=offer_embed, view=view, delete_after=360.0)

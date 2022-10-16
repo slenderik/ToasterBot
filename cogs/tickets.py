@@ -2,11 +2,6 @@ import datetime
 import time
 import disnake
 import io
-# import reportlab
-
-from canvas import Canvas
-
-# from reportlab.pdfgen.canvas import Canvas
 
 from fpdf import FPDF
 from disnake import SelectOption, Embed
@@ -215,10 +210,7 @@ class TicketsCog(commands.Cog):
         # view = b.getbuffer()
         await ctx.send(file=disnake.File(fp=view))
 
-    @commands.command(name="t2")
-    async def t2(self, ctx: commands.Context):
-        a = Canvas('Welcome to PDF').hist(data).binary()
-        await ctx.send(file=disnake.File(fp=view))
+
 
     @commands.command(name="tc")
     async def transcript(self, ctx: commands.Context):
