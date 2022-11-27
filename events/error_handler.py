@@ -16,14 +16,7 @@ class ErrorsCog(commands.Cog):
     @commands.Cog.listener()
     async def on_slash_command_error(self, inter: ApplicationCommandInteraction, error):
         """Обработчик ошибок"""
-        if isinstance(error, commands.CommandError):
-            texts = ["Извините!", "Простите!", "Ошибка"]
-            error_embed = Embed(
-                title=f":warning: | {choice(texts)}",
-                description=f"Не удалось выполнить команду, код ошибки: {error}"
-            )
-            await inter.response.send_message(embed=error_embed, ephemeral=True)
-        elif isinstance(error, commands.CommandOnCooldown):
+        if isinstance(error, commands.CommandOnCooldown):
             texts = ["Повторите позже", "чуть позже!", "пару секунд!", "примите позу ожидания", "одну секундочку!",
                      "щя",
                      "подождите"]
@@ -37,6 +30,13 @@ class ErrorsCog(commands.Cog):
             error_embed = Embed(
                 title=f":hourglass: | {choice(texts)}",
                 description=f"Не удалось выполнить команду, для этого необходима роль: {error}"
+            )
+            await inter.response.send_message(embed=error_embed, ephemeral=True)
+        elif isinstance(error, commands.CommandError):
+            texts = ["Извините!", "Простите!", "Ошибка"]
+            error_embed = Embed(
+                title=f":warning: | {choice(texts)}",
+                description=f"Не удалось выполнить команду, код ошибки: {error}"
             )
             await inter.response.send_message(embed=error_embed, ephemeral=True)
 

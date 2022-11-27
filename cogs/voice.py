@@ -21,6 +21,7 @@ async def get_channel(guild: object, user_id: int) -> object | None:
 cooldowns = {}
 cooldown_create = {}
 cooldown_name = {}
+voice_create_id = 1031152112236761140
 
 
 class VoiceView(disnake.ui.View):
@@ -104,13 +105,12 @@ class VoiceCog(commands.Cog):
         print(f"{self.bot.user} | {__name__}")
 
     @commands.command(name="гс")
-    @commands.has_role(977974127304515614)
     async def voice_settings(self, ctx: commands.Context):
         embed = disnake.Embed(
             title="Управление личным каналом!",
             description="У нас есть каналы. Они каналы."
-                        "[ **Название** ] канала. Спасибо что используйте!"
-                        "[ **Лимит** ] участников в канале. Не выкидывает участников."
+                        "[ **Название** ] канала. Спасибо что используйте! \n"
+                        "[ **Лимит** ] участников в канале. Не выкидывает участников.\n"
         ).set_footer(text="Нажмите на кнопки ниже, чтобы настроить канал!")
         await ctx.send(embed=embed, view=VoiceView())
 

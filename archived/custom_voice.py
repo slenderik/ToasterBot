@@ -11,8 +11,6 @@ from disnake.ext import commands
 chat_id = 823820166478823464
 voice_create_id = 879387831385088020
 server_id = 823820166478823462
-logo_url = "https://media.discordapp.net/attachments/925973441524424716/925973455919251536/logo_bread.png?width=473&height=473"
-
 
 # inter.bot self.bot
 # inter.user member
@@ -361,7 +359,6 @@ class VoiceCog(commands.Cog):
                                     * Выкинуть и запретить заходить к вам (остальные смогнут) `/приват-канал выкинуть [человек]`
                                 """
                 )
-                #control_panel_embed.set_thumbnail(url=logo_url)
                 control_panel_embed.set_footer(text="Вот некоторые настройки:")
 
                 try:

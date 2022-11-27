@@ -1,10 +1,11 @@
-import disnake
+from disnake import ApplicationCommandInteraction
 from disnake.ext import commands
+from disnake.ext.commands import Bot, Cog
 
 
-class PingCog(commands.Cog):
+class PingCog(Cog):
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.Cog.listener()
@@ -12,15 +13,15 @@ class PingCog(commands.Cog):
         print(f"{self.bot.user} | {__name__}")
 
     @commands.slash_command()
-    async def ping(self, inter: disnake.ApplicationCommandInteraction):
+    async def ping(self, inter: ApplicationCommandInteraction):
         """Получить задержку работы бота."""
         await inter.response.send_message(f"Задержка: {round(self.bot.latency * 1000)}мл.")
 
 
-def setup(bot: commands.Bot) -> None:
+def setup(bot: Bot) -> None:
     bot.add_cog(PingCog(bot))
     print(f" + {__name__}")
 
 
-def teardown(bot: commands.Bot) -> None:
+def teardown(bot: Bot) -> None:
     print(f" – {__name__}")

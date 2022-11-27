@@ -333,7 +333,7 @@ class InfoCog(commands.Cog):
                     )
                     return
 
-                from cogs.tickets import TicketModal
+                from archived.tickets import TicketModal
                 modal = TicketModal()
                 await inter.response.send_modal(modal=modal)
                 print('1 ads')
