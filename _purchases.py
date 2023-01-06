@@ -8,7 +8,7 @@ from disnake.ext import commands
 from disnake.ui import View, Button
 
 
-async def get_purchases(nicknames: list[str]) -> Embed:
+async def get_purchases(nicknames: list[str]) -> list[Embed]:
     async def request_to_donations(search_nickname: str) -> object:
         """Вернуть информацию поиска по никнейму, в группе с донатами."""
         TOKEN = "25991c5d25991c5d25991c5d6d25e1ebfb2259925991c5d447917c5be90392810a81ccd"
