@@ -3,7 +3,7 @@ from re import split
 
 import disnake
 from aiohttp import ClientSession
-from disnake import Embed
+from disnake import Embed, UserCommandInteraction, ApplicationCommandInteraction, MessageCommandInteraction
 from disnake.ext import commands
 
 
@@ -15,16 +15,14 @@ class PurchasesCog(commands.Cog):
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
-    @commands.slash_command(name="покупки")
-    async def purchases(self, inter: disnake.ApplicationCommandInteraction, никнейм: str):
+    async def get_purchases(self, inter: ApplicationCommandInteraction, nicknames: str) -> Embed:
         """Посмотреть покупки по никнейму
 
         Parameters
         ----------
         никнейм: Введите никнейм игрока, покупки которого хотите посмотреть
         """
-        nickname = str(никнейм)
-        nicknames = split(" |, | ,|,", nickname)
+        nicknames = split(" |, | ,|,", str(nicknames))
 
         async def request_to_donations(search_nickname: str) -> object:
             """Вернуть информацию поиска по никнейму, в группе с донатами."""
@@ -165,8 +163,17 @@ class PurchasesCog(commands.Cog):
         for nickname in nicknames:
             await add_embed(nickname)
 
-        store_button = disnake.ui.View()
-        store_button.add_item(
+        return embeds
+
+    @commands.slash_command(name="покупки")
+    async def purchases(self, inter: ApplicationCommandInteraction, никнейм: str):
+        """Посмотреть покупки по никнейму
+
+        Parameters
+        ----------
+        никнейм: Введите никнейм игрока, покупки которого хотите посмотреть
+        """
+        store_button = disnake.ui.View().add_item(
             disnake.ui.Button(
                 emoji="🛍️",
                 label="Купить донат можно здесь!",
@@ -174,7 +181,33 @@ class PurchasesCog(commands.Cog):
                 url="https://shop.breadixpe.ru/"
             )
         )
+        embeds = await self.get_purchases(inter=inter, nicknames=никнейм)
+        await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
 
+    @commands.user_command(name="Посмотреть покупки")
+    async def avatar(self, inter: UserCommandInteraction, user: disnake.User):
+        store_button = disnake.ui.View().add_item(
+            disnake.ui.Button(
+                emoji="🛍️",
+                label="Купить донат можно здесь!",
+                style=disnake.ButtonStyle.url,
+                url="https://shop.breadixpe.ru/"
+            )
+        )
+        embeds = await self.get_purchases(inter=inter, nicknames=f"{user.display_name}, {user.name}")
+        await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
+
+    @commands.message_command(name="Узнать покупки")
+    async def reverse(self, inter: MessageCommandInteraction, message: disnake.Message):
+        store_button = disnake.ui.View().add_item(
+            disnake.ui.Button(
+                emoji="🛍️",
+                label="Купить донат можно здесь!",
+                style=disnake.ButtonStyle.url,
+                url="https://shop.breadixpe.ru/"
+            )
+        )
+        embeds = await self.get_purchases(inter=inter, nicknames=f"{message.author.display_name}, {message.author.name}")
         await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
 
 

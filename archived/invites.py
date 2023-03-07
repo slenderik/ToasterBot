@@ -118,13 +118,13 @@ class InvitesCog(commands.Cog):
         invites.update({invite.code: invite})
 
         invite_create_embed = get_embed(name="Приглашение было создано", color=0x36CE36, invite=invite)
-        from extension.logging import log_send
+        from utils.logging import log_send
         await log_send(self.bot, invite_create_embed)
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: Invite):
         invite_delete_embed = get_embed(name="Приглашение было удалено", color=0xCE3636, invite=invites[invite.code])
-        from extension.logging import log_send
+        from utils.logging import log_send
         await log_send(self.bot, invite_delete_embed)
 
         if invite.code in invites:
@@ -150,7 +150,7 @@ class InvitesCog(commands.Cog):
 
         member_join_embed = get_embed(name="Новый участник!", member=member, invite=invite_code)
 
-        from extension.logging import log_send
+        from utils.logging import log_send
         await log_send(self.bot, member_join_embed)
 
 
