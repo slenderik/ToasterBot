@@ -1,18 +1,20 @@
 import disnake
-from disnake import Embed
+from disnake import Embed, ApplicationCommandInteraction
 from disnake.ext import commands
+
+from utils.config import servers
 
 
 class PlayButton(disnake.ui.View):
 
-    def __init__(self, embed: disnake.Embed, author: disnake.User):
+    def __init__(self, embed: Embed, author: disnake.User):
         super().__init__(timeout=180)
         self.author = author
         self.embed = embed
         self.members = []
 
     @disnake.ui.button(label="Буду играть", style=disnake.ButtonStyle.green)
-    async def me_too(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+    async def me_too(self, inter: disnake.MessageInteraction):
         if inter.user.id == self.author.id:
             await inter.response.send_message(embed=Embed(
                 title="Вы предложили другим участникам поиграть, поэтому не можете её нажать. "
@@ -42,7 +44,7 @@ class PlayButton(disnake.ui.View):
         await inter.response.edit_message(embed=self.embed)
 
     @disnake.ui.button(emoji="🗑️", style=disnake.ButtonStyle.gray)
-    async def delete(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+    async def delete(self, inter: disnake.MessageInteraction):
         print(inter.channel.permissions_for(inter.author))
         if inter.user.id == self.author.id:
             text = ""
@@ -67,16 +69,14 @@ class ChatCog(commands.Cog):
         print(f"{self.bot.user} | {__name__}")
 
     @commands.slash_command(name="найти")
-    async def offer(self, inter: disnake.ApplicationCommandInteraction):
+    async def offer(self, inter: ApplicationCommandInteraction):
         pass
 
-    Servers = commands.option_enum(
-        ["SkyWars №1", "SkyWars №2", "BedWars №1", "BedWars №2", "BedWars №3", "Duels №1",
-         "Murder Mystery №1", "Murder Mystery №2", "Survival №1"])
+    Servers = commands.option_enum(servers)
 
     @offer.sub_command(name="игру")
     @commands.cooldown(2, 360.0, commands.BucketType.user)
-    async def to_play(self, inter: disnake.ApplicationCommandInteraction, режим: Servers = None):
+    async def to_play(self, inter: ApplicationCommandInteraction, режим: Servers = None):
         """
         Найти людей для совместной игры
         Parameters
@@ -84,9 +84,16 @@ class ChatCog(commands.Cog):
         режим: Выберите сервер для игры
         """
         offer_embed = Embed(colour=0x2d7d46)
-        offer_embed.set_author(
-            name=f"{inter.user.display_name} хочет поиграть" if режим is None else f"{inter.user.display_name} хочет поиграть на {режим}!",
-            icon_url=inter.user.display_avatar.url)
+        if режим is None:
+            offer_embed.set_author(
+                name=f"{inter.user.display_name} ищет игроков для игры",
+                icon_url=inter.user.display_avatar.url
+            )
+        else:
+            offer_embed.set_author(
+                name=f"{inter.user.display_name} ищет игроков для игры {режим}",
+                icon_url=inter.user.display_avatar.url
+            )
         view = PlayButton(embed=offer_embed, author=inter.user)
         await inter.response.send_message(embed=offer_embed, view=view, delete_after=360.0)
 

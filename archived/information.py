@@ -290,7 +290,7 @@ class InfoCog(commands.Cog):
         button_id = inter.component.custom_id
         if button_id.startswith("info"):
             if button_id == "info:show_rules":
-                from cogs.rules import rules_texts, number_of_rules
+                from archived.rules import rules_texts, number_of_rules
                 rules_embed = Embed(title="Правила сообщества в Discord")
                 for clause in range(1, number_of_rules + 1):
                     rules_embed.add_field(

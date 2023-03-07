@@ -2,22 +2,22 @@ from random import choice
 
 from disnake import Game
 from disnake.ext import tasks, commands
+from utils.config import servers
 
 
 class GameStatusCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        self.game_status.start()
-        bot = await self.bot.change_presence(activity=Game("Проснулся"))
+        self.playing_status.start()
 
     @tasks.loop(minutes=10.0)
-    async def game_status(self):
-        print("anime")
-        servers = ("SkyWars", "BedWars", "Duels", "Murder Mystery", "Survival")
-        bot = await self.bot.change_presence(activity=Game(choice(servers)))
+    async def playing_status(self):
+        await self.bot.change_presence(activity=Game(choice(servers)))
+
+    @playing_status.before_loop
+    async def before_playing_status(self):
+        print('[Игровой статус] Начинаем')
+        await self.bot.wait_until_ready()
 
 
 def setup(bot: commands.Bot) -> None:
