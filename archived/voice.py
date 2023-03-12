@@ -124,28 +124,11 @@ class VoiceCog(commands.Cog):
         # before.channel = None - зашел в гс сервера
         # after.channel = None - вышел с гс сервера
 
-        # выключить NSFW
-        if before.channel and before.channel.voice_states == {} and before.channel.is_nsfw():
-            try:
-                await before.channel.edit(nsfw=False, reason="Канал пустой, зачем его оставлять с матом?")
-            except Exception as e:
-                print(f"{__name__} Error: {e}")
-
         # очистить чат
         if before.channel and before.channel.voice_states == {} and before.channel.id not in custom_rooms \
                 and before.channel.id != voice_create_id:
             try:
                 await before.channel.purge(limit=None)
-            except Exception as e:
-                print(f"{__name__} Error: {e}")
-
-        # отключить отошедших
-        if after.channel is not None and after.channel.id == afk_channel_id:
-            await after.channel.send("Эй, похоже вы немного отошли? Надеемся с вами всё хорошо ^^ Мы вас отключим от "
-                                     "этого канала через пару минут.")
-            await sleep(300)
-            try:
-                await member.move_to(None)
             except Exception as e:
                 print(f"{__name__} Error: {e}")
 

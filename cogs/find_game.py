@@ -1,6 +1,7 @@
 import disnake
-from disnake import Embed, ApplicationCommandInteraction
+from disnake import Embed, permissions, MessageInteraction, ApplicationCommandInteraction
 from disnake.ext import commands
+from disnake.ui import Button
 
 from utils.config import servers
 
@@ -14,19 +15,17 @@ class PlayButton(disnake.ui.View):
         self.members = []
 
     @disnake.ui.button(label="Буду играть", style=disnake.ButtonStyle.green)
-    async def me_too(self, inter: disnake.MessageInteraction):
+    async def me_too(self, button: Button, inter: MessageInteraction):
         if inter.user.id == self.author.id:
-            await inter.response.send_message(embed=Embed(
-                title="Вы предложили другим участникам поиграть, поэтому не можете её нажать. "
-                      "Эта кнопка для других участников."),
-                ephemeral=True
-            )
+            await inter.response.send_message("Вы предложили другим участникам поиграть, поэтому не можете это нажать. "
+                                              "Эта кнопка для других участников.", ephemeral=True)
             return
 
-        if inter.user.id not in self.members:  # первый раз нажал
+        if inter.user.id not in self.members:  # добавляем в желающих
             self.members.append(inter.user.id)
-        else:  # вторично нажал
-            self.members.remove(inter.user.id)
+
+        else:
+            self.members.remove(inter.user.id)  # убираем в желающих
 
         if self.members:  # Обновляем список желающих
             try:
@@ -44,19 +43,22 @@ class PlayButton(disnake.ui.View):
         await inter.response.edit_message(embed=self.embed)
 
     @disnake.ui.button(emoji="🗑️", style=disnake.ButtonStyle.gray)
-    async def delete(self, inter: disnake.MessageInteraction):
-        print(inter.channel.permissions_for(inter.author))
+    async def delete(self, button: Button, inter: MessageInteraction):
         if inter.user.id == self.author.id:
             text = ""
-            for member in self.members:
-                text += f"<@{member}>, "
+            for member_id in self.members:
+                text += f"<@{member_id}>, "
             text = f"Для игры найдены: {text[:2]}" if self.members else "Никто не найден"
             await inter.message.delete()
             await inter.response.send_message(embed=Embed(title="Сообщение удалено.", description=text), ephemeral=True)
 
+        elif inter.user.guild_permissions.manage_messages:
+            await inter.message.delete()
+            await inter.response.send_message("Сообщение удалено.", ephemeral=True)
+
+
         elif inter.user.id != self.author.id:
-            await inter.response.send_message(embed=Embed(title="Это сообщение может удалить только его автор."),
-                                              ephemeral=True)
+            await inter.response.send_message("Это сообщение может удалить только его автор.", ephemeral=True)
 
 
 class ChatCog(commands.Cog):
