@@ -4,7 +4,7 @@ from mcstatus import BedrockServer
 
 from utils.config import SERVERS_PORTS, status_voice_channel_id, server_emojis, status_message_id, \
     status_text_channel_id
-from utils.logging import Logging
+from utils.logging import
 from disnake import Embed
 
 online_record = 713
@@ -19,7 +19,7 @@ async def status_voice_update(bot):
     except Exception as e:
         print(f"{__name__} Error: {e}")
         embed = Embed(title="Ошибка обновления в онлайн статусе", description=f"Ошибка: {e}")
-        await error(embed=embed)
+        await error_(embed=embed)
 
 
 async def status_message_update(bot):
