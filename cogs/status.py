@@ -4,7 +4,7 @@ from mcstatus import BedrockServer
 
 from utils.config import SERVERS_PORTS, status_voice_channel_id, server_emojis, status_message_id, \
     status_text_channel_id
-from utils.logging import send_to_admin
+from utils.logging import Logging
 from disnake import Embed
 
 online_record = 713
@@ -13,34 +13,32 @@ online_record = 713
 async def status_voice_update(bot):
     try:
         voice_channel = await bot.fetch_channel(status_voice_channel_id)
-        server = BedrockServer.lookup("play.breadixpe.ru:19132")
-        status = server.status()
-        await voice_channel.edit(name=f"Онлайн — {status.players_online}")
+        server = await BedrockServer.async_status(BedrockServer(host="play.breadixpe.ru", port=19132))
+        await voice_channel.edit(name=f"Онлайн — {server.players_online}")
 
     except Exception as e:
         print(f"{__name__} Error: {e}")
         embed = Embed(title="Ошибка обновления в онлайн статусе", description=f"Ошибка: {e}")
-        await send_to_admin(bot, embed=embed)
+        await error(embed=embed)
 
 
 async def status_message_update(bot):
     # создаём ембед
-    server = BedrockServer.lookup("play.breadixpe.ru:19132")
-
-    status = server.status()
-
-    embed = Embed(title=f"Онлайн: {status.players_online} - Рекорд: {online_record}", color=0xf9f9f9,
-                  timestamp=datetime.now())
-    embed.set_image(url="https://cdn.discordapp.com/attachments/1060452754436411454/1078206667981852692/max-res.gif")
+    server = await BedrockServer.async_status(BedrockServer(host="play.breadixpe.ru", port=19132))
+    embed = Embed(
+        title=f"Онлайн: {server.players_online} - Рекорд: {online_record}",
+        color=0xf9f9f9,
+        timestamp=datetime.now()
+    )
+    embed.set_image(url="https://i.ibb.co/cQcs6XT/max-res.gif")
     embed.set_footer(icon_url='https://i.ibb.co/kSqg89s/logo16x16-3.png', text='Обновлено')
 
     # добавляем поля серверов в ебмед
     for server_name, ports in SERVERS_PORTS.items():
         text = ""
         for port in ports:
-            server = BedrockServer.lookup(f"play.breadixpe.ru:{str(port)}")
-            status = server.status()
-            text += f"{server_emojis[port]} **{status.players_online}**︲"
+            server = await BedrockServer.async_status(BedrockServer(host="play.breadixpe.ru", port=port))
+            text += f"{server_emojis[port]} **{server.players_online}**︲"
 
         embed.add_field(name=f"{server_name}", value=f"{text[:-1]}", inline=True)
 
@@ -55,7 +53,7 @@ async def status_message_update(bot):
         await channel.send(embed=embed)
 
         embed = Embed(title="Ошибка статуса в канале", description=f"Ошибка: {e}")
-        await send_to_admin(bot, embed=embed)
+        await error(embed=embed)
 
 
 class StatusCog(commands.Cog):
@@ -66,10 +64,10 @@ class StatusCog(commands.Cog):
     def cog_unload(self):
         self.update_status.cancel()
 
-    @tasks.loop(seconds=35.0)
+    @tasks.loop(minutes=2)
     async def update_status(self):
-        # await status_voice_update(self.bot)
         await status_message_update(self.bot)
+        await status_voice_update(self.bot)
 
     @update_status.before_loop
     async def before_printer(self):
