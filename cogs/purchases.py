@@ -1,3 +1,4 @@
+from os import environ
 from random import choice
 from re import split
 
@@ -26,11 +27,11 @@ class PurchasesCog(commands.Cog):
 
         async def request_to_donations(search_nickname: str) -> object:
             """Вернуть информацию поиска по никнейму, в группе с донатами."""
-            TOKEN = "25991c5d25991c5d25991c5d6d25e1ebfb2259925991c5d447917c5be90392810a81ccd"
+            TOKEN = environ.get('VK_TOKEN')
             VERSION = "5.131"
             GROUP_NAME = "breadixdonations"
-            GROUP_ID = "-151687251"
-            COUNT = "100"
+            GROUP_ID=  "-151687251"  # id группы с донатами
+            COUNT = "100"  # Всего 100 постов. Ожидается что больше 100 донатов на нике не будет.
             async with ClientSession() as session:
                 async with session.get(
                         f"https://api.vk.com/method/wall.search?"
@@ -207,7 +208,8 @@ class PurchasesCog(commands.Cog):
                 url="https://shop.breadixpe.ru/"
             )
         )
-        embeds = await self.get_purchases(inter=inter, nicknames=f"{message.author.display_name}, {message.author.name}")
+        embeds = await self.get_purchases(inter=inter,
+                                          nicknames=f"{message.author.display_name}, {message.author.name}")
         await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
 
 
