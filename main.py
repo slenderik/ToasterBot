@@ -14,4 +14,4 @@ Embed.set_default_color(0xf1c40f)  # старый голубокий синий 
 bot.load_extensions("cogs")
 bot.load_extensions("events")
 
-bot.run(environ.get('TOKEN'))
+bot.run(environ.get('DISCORD_TOKEN'))

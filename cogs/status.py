@@ -4,8 +4,8 @@ from mcstatus import BedrockServer
 
 from utils.config import SERVERS_PORTS, status_voice_channel_id, server_emojis, status_message_id, \
     status_text_channel_id
-from utils.logging import
-from disnake import Embed
+from utils.logging import send_to_admin, send_to_logs
+from disnake import Embed, Forbidden, HTTPException
 
 online_record = 713
 
@@ -16,10 +16,33 @@ async def status_voice_update(bot):
         server = await BedrockServer.async_status(BedrockServer(host="play.breadixpe.ru", port=19132))
         await voice_channel.edit(name=f"Онлайн — {server.players_online}")
 
+    except Forbidden as e:
+        embed = Embed(
+            title=f"Forbidden {__name__}!",
+            description=f"У меня нет прав изменить канал <#{status_voice_channel_id}>! {e}"
+        )
+        await send_to_admin(bot=bot, embed=embed)
+
+    except HTTPException as e:
+        embed = Embed(
+            title=f"HTTPException {__name__}!",
+            description=f"Ошибка изменения канала: {e}"
+        )
+        await send_to_admin(bot=bot, embed=embed)
+
+    except TypeError as e:
+        embed = Embed(
+            title=f"TypeError {__name__}!",
+            description=f"Информация о разрешении на перезапись находится не в надлежащей форме: {e}"
+        )
+        await send_to_admin(bot=bot, embed=embed)
+
     except Exception as e:
-        print(f"{__name__} Error: {e}")
-        embed = Embed(title="Ошибка обновления в онлайн статусе", description=f"Ошибка: {e}")
-        await error_(embed=embed)
+        embed = Embed(
+            title=f"Exception {__name__}!",
+            description=f"Ошибка: {e}"
+        )
+        await send_to_admin(bot=bot, embed=embed)
 
 
 async def status_message_update(bot):
@@ -48,12 +71,14 @@ async def status_message_update(bot):
         await message.edit(embed=embed)
 
     except Exception as e:
-        print(f"{__name__} Error: {e}")
         channel = await bot.fetch_channel(status_text_channel_id)
         await channel.send(embed=embed)
 
-        embed = Embed(title="Ошибка статуса в канале", description=f"Ошибка: {e}")
-        await error(embed=embed)
+        embed = Embed(
+            title=f"Exception {__name__}!",
+            description=f"Ошибка: {e}"
+        )
+        await send_to_logs(embed=embed)
 
 
 class StatusCog(commands.Cog):

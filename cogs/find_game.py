@@ -56,7 +56,6 @@ class PlayButton(disnake.ui.View):
             await inter.message.delete()
             await inter.response.send_message("Сообщение удалено.", ephemeral=True)
 
-
         elif inter.user.id != self.author.id:
             await inter.response.send_message("Это сообщение может удалить только его автор.", ephemeral=True)
 
