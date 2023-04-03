@@ -58,6 +58,7 @@ class PurchasesCog(commands.Cog):
                 "survival": "surv",
                 "duels": "duels"
             }
+            
             for server in servers:
                 if int(text.find(server)) != -1:
                     for number in numbers:
