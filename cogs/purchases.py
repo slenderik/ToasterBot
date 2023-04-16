@@ -1,11 +1,144 @@
 from os import environ
-from random import choice
 from re import split
 
-import disnake
 from aiohttp import ClientSession
-from disnake import Embed, UserCommandInteraction, ApplicationCommandInteraction, MessageCommandInteraction
+from disnake import Embed, UserCommandInteraction, ApplicationCommandInteraction, MessageCommandInteraction, \
+    ButtonStyle, Message, User
 from disnake.ext import commands
+from disnake.ui import View, Button
+
+
+async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
+    """Вернуть ембеды покупок по никнеймам"""
+
+    async def request_to_vk_donations(nickname: str) -> object:
+        """Вернуть информацию поиска по никнейму, в группе с донатами."""
+        TOKEN = environ.get('VK_TOKEN')
+        VERSION = "5.131"
+        GROUP_NAME = "breadixdonations"
+        GROUP_ID = "-151687251"  # id группы с донатами
+        COUNT = "100"  # Максимум 100 постов за один запрос.
+        async with ClientSession() as session:
+            async with session.get(
+                    f"https://api.vk.com/method/wall.search?"
+                    f"access_token={TOKEN}"
+                    f"&v={VERSION}"
+                    f"&domain={GROUP_NAME}"
+                    f"&owner_id={GROUP_ID}"
+                    f"&query={nickname}"
+                    f"&owners_only=1"
+                    f"&count={COUNT}"
+            ) as request:
+                if request.status == 200:
+                    js = await request.json()
+                    return js
+
+    def get_server_name(text: str) -> str:
+        """Вернуть название сервер из текста"""
+        numbers = ("№0, №1", "№2", "№3")
+        servers = {
+            "bedwars": "BW",
+            "skywars": "SW",
+            "murder mystery": "MM",
+            "murdermystery": "MM",
+            "survival": "SU",
+            "duels": "DU"
+        }
+        # Получаем совпадения из текста и списка.
+        server_name = set(servers.keys()) & set(text.lower().split())
+        number = set(numbers) & set(text.lower().split())
+
+        print(servers["".join(server_name)] + "".join(number)[1:])
+
+        return servers["".join(server_name)] + "".join(number)[1:]
+    def get_url(response: object, i: int) -> str:
+        """Вернуть ссылку на пост ВКонтакте"""
+        owner_id = str(response["response"]["items"][i]["owner_id"])
+        url_id = str(response["response"]["items"][i]["id"])
+        return "https://vk.com/wall" + owner_id + "_" + url_id
+
+    def get_price_purchase(text: str) -> int:
+        price_purchase = {
+            "vip+": 369,
+            "vip": 79,
+            "vip survival": 229,
+            "mvp+": 319,
+            "mvp++": 619,
+            "mvp": 159,
+            "fly": 39,
+            "creative+": 619,
+            "creative": 129,
+            "разбан": 240,
+            "1000 монет": 49,
+            "5000 монет": 159,
+            "10000 монет": 249,
+            "пожертвования": 29
+        }
+        purchases = (
+            "fly", "vip+", "vip", "mvp++", "mvp+", "mvp", "creative+", "creative", "разбан", "1000 монет",
+            "5000 монет", "10000 монет", "пожертвования")
+
+        # получаем покупку из текста, создавая список из текста и сверяя списки.
+        purchase = set(purchases) & set(text.lower().split())
+
+        if set("Survival") & set(text.lower().split()):
+            # Если покупка на сюрва
+            return price_purchase["".join(purchase) + " survival"]
+        else:
+            # Если покупка не на сюрва
+            return price_purchase["".join(purchase)]
+
+    purchases_embeds = []
+
+    # Для каждого никнейма создаём ембед с покупоками
+    for nickname in nicknames:
+        response = await request_to_vk_donations(nickname)
+        post_count = response["response"]["count"]
+        full_cost = 0
+        post_text = ""
+
+        # Состовляем текст всех покупок
+        for post_number in range(post_count):
+            text = response["response"]["items"][post_number]["text"].lower()
+
+            words = [
+                "игрок ", "приобрел ", "купил ","на ", "привилегию ", "купить донат — shop.breadixpe.ru", "!", "на "
+                "——————————————————", "донат можно приобрести shop.breadixpe.ru", "——————————————————",
+                f"{nickname} "]
+            servers = {
+                "bedwars": "BW",
+                "skywars": "SW",
+                "murder mystery": "MM",
+                "murdermystery": "MM",
+                "survival": "SU",
+                "duels": "DU"
+            }
+
+            for i in words:
+                text = text.replace(i, "")
+            text = text.rstrip()
+
+            server_name = "".join(set(servers.keys()) & set(text.split()))
+            text = text.replace(server_name, servers[server_name])
+
+            post_text += f"`{post_number + 1}.` [{text}]({get_url(response, post_number)}) \n"
+            full_cost += get_price_purchase(text)
+
+        if post_count == 0:
+            title = f":shopping_bags: {nickname}"
+            value = "Нет покупок."
+        else:
+            title = f":shopping_bags: {nickname} ({post_count})"
+            value = f"{post_text}"
+
+        # Создаём ембед
+        embed = Embed(title=title, description=value)
+        embed.set_footer(text=f"От {round(full_cost / 2)} до {full_cost} ₽")
+
+        # Добавляем к ембедам
+        purchases_embeds.append(embed)
+
+    return purchases_embeds
 
 
 class PurchasesCog(commands.Cog):
@@ -15,202 +148,34 @@ class PurchasesCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
-
-    async def get_purchases(self, inter: ApplicationCommandInteraction, nicknames: str) -> Embed:
-        """Посмотреть покупки по никнейму
-
-        Parameters
-        ----------
-        никнейм: Введите никнейм игрока, покупки которого хотите посмотреть
-        """
-        nicknames = split(" |, | ,|,", str(nicknames))
-
-        async def request_to_donations(search_nickname: str) -> object:
-            """Вернуть информацию поиска по никнейму, в группе с донатами."""
-            TOKEN = environ.get('VK_TOKEN')
-            VERSION = "5.131"
-            GROUP_NAME = "breadixdonations"
-            GROUP_ID=  "-151687251"  # id группы с донатами
-            COUNT = "100"  # Всего 100 постов. Ожидается что больше 100 донатов на нике не будет.
-            async with ClientSession() as session:
-                async with session.get(
-                        f"https://api.vk.com/method/wall.search?"
-                        f"access_token={TOKEN}"
-                        f"&v={VERSION}"
-                        f"&domain={GROUP_NAME}"
-                        f"&owner_id={GROUP_ID}"
-                        f"&query={search_nickname}"
-                        f"&owners_only=1"
-                        f"&count={COUNT}") as r:
-                    if r.status == 200:
-                        js = await r.json()
-                        return js
-
-        def get_server(text: str) -> str:
-            """Вернуть сервер из текста"""
-            servers = ("bedwars", "skywars", "murder mystery", "murdermystery", "survival", "duels")
-            numbers = ("№1", "№2", "№3")
-            server_output = {
-                "bedwars": "BW",
-                "skywars": "SW",
-                "murder mystery": "MM",
-                "murdermystery": "MM",
-                "survival": "surv",
-                "duels": "duels"
-            }
-            for server in servers:
-                if int(text.find(server)) != -1:
-                    for number in numbers:
-                        if text.find(number) != -1:
-                            server = f"{server_output[server]}{number[1:]}"
-                            return server
-
-        def get_purchase(text: str) -> str:
-            """Вернуть покупку из текста"""
-            purchases = (
-                "fly", "vip+", "vip", "mvp++", "mvp+", "mvp", "creative+", "creative", "разбан", "1000 монет",
-                "5000 монет", "10000 монет", "пожертвования")
-
-            for purchase in purchases:
-                if int(text.find(purchase.lower())) != -1:
-                    return purchase
-
-        def get_nickname(text: str) -> str:
-            """Вернуть никнейм из текста"""
-            text = text[6:]
-
-            if int(text.find("купил")) != -1:
-                return text[:int(text.find("купил")) - 1].replace("_", "\_")
-
-            if int(text.find("приобрел")) != -1:
-                return text[:int(text.find("приобрел")) - 1].replace("_", "\_")
-
-        def get_url(response: object, i: int) -> str:
-            """Вернуть ссылку на пост ВКонтакте"""
-            owner_id = str(response["response"]["items"][i]["owner_id"])
-            url_id = str(response["response"]["items"][i]["id"])
-            return "https://vk.com/wall" + owner_id + "_" + url_id
-
-        def get_name(text: str) -> str:
-            """"Вернуть изменённый никнейм"""
-            return text.replace("_", "\_")
-
-        def get_price(text: str) -> int:
-            purchase_price = {
-                "vip+": 369,
-                "vip": 79,
-                "vip surv": 229,
-                "mvp+": 319,
-                "mvp++": 619,
-                "mvp": 159,
-                "fly": 39,
-                "creative+": 129,
-                "creative": 619,
-                "разбан": 240,
-                "1000 монет": 49,
-                "5000 монет": 159,
-                "10000 монет": 249,
-                "пожертвования": 29
-            }
-            purchases = (
-                "fly", "vip+", "vip", "mvp++", "mvp+", "mvp", "creative+", "creative", "разбан", "1000 монет",
-                "5000 монет", "10000 монет", "пожертвования")
-            servers = ("BW", "SW", "MM", "MM", "surv", "duels")
-
-            for purchase in purchases:
-                if int(text.find(purchase.lower())) != -1:
-                    if purchase != "vip":
-                        return purchase_price[purchase]
-                    else:
-                        if int(text.find("Survival")) != -1:
-                            return purchase_price[purchase]
-                        else:
-                            return purchase_price[f"{purchase} surv"]
-
-        embeds = []
-
-        async def add_embed(name: str):
-            """Добавить строчку постов по никнейму."""
-            response = await request_to_donations(name)
-            post_count = response["response"]["count"]
-
-            # Состовляем текст всех покупок
-            price = 0
-            post_text = ""
-            for i in range(post_count):
-                text = response["response"]["items"][i]["text"].lower()
-                a = f"`{i + 1}.` [{get_nickname(text)} | {get_server(text)} | " \
-                    f"{get_purchase(text)}]({get_url(response, i)})\n "
-                post_text += a
-                price += get_price(a)
-
-            # Состовляем текст.
-            if post_count == 0:
-                title = f":shopping_bags: {get_name(name)}"
-                value = choice(("`Нет покупок :(`", "`Тут пустовато..`", "`Можно было бы и купить!`"))
-            else:
-                title = f":shopping_bags: {get_name(name)} ({post_count})"
-                value = f"{post_text}"
-
-            embed = Embed(
-                title=title, description=value
-            ).set_footer(
-                text=f"💸 {round(price - price * 0.2)} - {price} ₽"
-            )
-
-            embeds.append(embed)
-
-        # Для каждого никнейма добавляем строчку с результатом поиска покупок
-        for nickname in nicknames:
-            await add_embed(nickname)
-
-        return embeds
+        await create_purchase_embed(nicknames=["double_master"])
 
     @commands.slash_command(name="покупки")
-    async def purchases(self, inter: ApplicationCommandInteraction, никнейм: str):
+    async def purchases_slash_command(self, inter: ApplicationCommandInteraction, никнейм: str):
         """Посмотреть покупки по никнейму
 
         Parameters
         ----------
         никнейм: Введите никнейм игрока, покупки которого хотите посмотреть
         """
-        store_button = disnake.ui.View().add_item(
-            disnake.ui.Button(
-                emoji="🛍️",
-                label="Купить донат можно здесь!",
-                style=disnake.ButtonStyle.url,
-                url="https://shop.breadixpe.ru/"
-            )
-        )
-        embeds = await self.get_purchases(inter=inter, nicknames=никнейм)
+        store_button = View().add_item(Button(
+            emoji="🛍️",
+            label="Сайт авто-доната",
+            style=ButtonStyle.url,
+            url="https://shop.breadixpe.ru/"
+        ))
+        embeds = await create_purchase_embed(nicknames=split(" |, | ,|,", никнейм))
         await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
 
-    @commands.user_command(name="Посмотреть покупки")
-    async def avatar(self, inter: UserCommandInteraction, user: disnake.User):
-        store_button = disnake.ui.View().add_item(
-            disnake.ui.Button(
-                emoji="🛍️",
-                label="Купить донат можно здесь!",
-                style=disnake.ButtonStyle.url,
-                url="https://shop.breadixpe.ru/"
-            )
-        )
-        embeds = await self.get_purchases(inter=inter, nicknames=f"{user.display_name}, {user.name}")
-        await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
+    @commands.message_command(name="Посмотреть покупки")
+    async def purchases_message_command(self, inter: MessageCommandInteraction, message: Message):
+        embeds = await create_purchase_embed(nicknames=[message.author.display_name, message.author.name])
+        await inter.response.send_message(embeds=embeds, ephemeral=True)
 
-    @commands.message_command(name="Узнать покупки")
-    async def reverse(self, inter: MessageCommandInteraction, message: disnake.Message):
-        store_button = disnake.ui.View().add_item(
-            disnake.ui.Button(
-                emoji="🛍️",
-                label="Купить донат можно здесь!",
-                style=disnake.ButtonStyle.url,
-                url="https://shop.breadixpe.ru/"
-            )
-        )
-        embeds = await self.get_purchases(inter=inter,
-                                          nicknames=f"{message.author.display_name}, {message.author.name}")
-        await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
+    @commands.user_command(name="Узнать покупки")
+    async def purchases_user_command(self, inter: UserCommandInteraction, user: User):
+        embeds = await create_purchase_embed(nicknames=[user.display_name, user.name])
+        await inter.response.send_message(embeds=embeds, ephemeral=True)
 
 
 def setup(bot):

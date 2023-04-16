@@ -96,7 +96,7 @@ class StatusCog(commands.Cog):
 
     @update_status.before_loop
     async def before_printer(self):
-        print('[STATUS] Ready')
+        print(f"[{__name__}] Ready")
         await self.bot.wait_until_ready()
 
     @commands.command(aliases=["статус"])

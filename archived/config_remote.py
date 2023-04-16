@@ -1,5 +1,4 @@
 import os
-
 from disnake import Embed, ApplicationCommandInteraction
 from disnake.ext import commands
 from disnake.ext.commands import Bot, Cog
@@ -46,29 +45,7 @@ class RemoteCogsCog(Cog):
     @cog.sub_command(name="загрузить")
     @commands.is_owner()
     async def load(self, inter: ApplicationCommandInteraction, extension: cogs):
-        """Загрузить дополнение"""
-        print(f"[{inter.user.name}]: загружает {extension}")
-        self.bot.load_extension(extension)
-        cog_load_embed = Embed(title=f"Дополнение {extension} загружено!")
-        await inter.response.send_message(embed=cog_load_embed, ephemeral=True)
-
-    @cog.sub_command(name="выгрузить")
-    @commands.is_owner()
-    async def unload(self, inter: ApplicationCommandInteraction, extension: cogs):
-        """Выгрузить дополнение"""
-        print(f"[{inter.user.name}]: выгружает {extension}")
-        self.bot.unload_extension(extension)
-        cog_unload_embed = Embed(title=f"Дополнение {extension} выгружено!")
-        await inter.response.send_message(embed=cog_unload_embed, ephemeral=True)
-
-    @cog.sub_command(name="перезагрузить")
-    @commands.is_owner()
-    async def creload(self, inter: ApplicationCommandInteraction, extension: cogs):
-        """Загрузить дополнение"""
-        print(f"[{inter.user.name}]: перезагружает {extension}")
-        self.bot.reload_extension(extension)
-        cog_reload_embed = Embed(title=f"Дополнение {extension} перезагружено!")
-        await inter.response.send_message(embed=cog_reload_embed, ephemeral=True)
+        """"""
 
 
 def setup(bot: Bot) -> None:
