@@ -7,10 +7,8 @@ from utils.config import SERVERS_PORTS, status_voice_channel_id, server_emojis, 
 from utils.logging import send_to_admin, send_to_logs
 from disnake import Embed, Forbidden, HTTPException
 
-online_record = 713
 
-
-async def status_voice_update(bot):
+async def update_voice_status(bot):
     try:
         voice_channel = await bot.fetch_channel(status_voice_channel_id)
         server = await BedrockServer.async_status(BedrockServer(host="play.breadixpe.ru", port=19132))
@@ -45,11 +43,11 @@ async def status_voice_update(bot):
         await send_to_admin(bot=bot, embed=embed)
 
 
-async def status_message_update(bot):
+async def update_status_message(bot):
     # создаём ембед
     server = await BedrockServer.async_status(BedrockServer(host="play.breadixpe.ru", port=19132))
     embed = Embed(
-        title=f"Онлайн: {server.players_online} - Рекорд: {online_record}",
+        title=f"Онлайн: {server.players_online}",
         color=0xf9f9f9,
         timestamp=datetime.now()
     )
@@ -78,7 +76,7 @@ async def status_message_update(bot):
             title=f"Exception {__name__}!",
             description=f"Ошибка: {e}"
         )
-        await send_to_logs(embed=embed)
+        await send_to_logs(bot=bot, embed=embed)
 
 
 class StatusCog(commands.Cog):
@@ -89,17 +87,21 @@ class StatusCog(commands.Cog):
     def cog_unload(self):
         self.update_status.cancel()
 
-    @tasks.loop(minutes=2)
+    @tasks.loop(minutes=5)
     async def update_status(self):
-        await status_message_update(self.bot)
-        await status_voice_update(self.bot)
+        await update_voice_status(self.bot)
+        await update_status_message(self.bot)
 
     @update_status.before_loop
     async def before_printer(self):
         print(f"[{__name__}] Ready")
         await self.bot.wait_until_ready()
 
+    async def is_owner(ctx):
+        return ctx.author.id == 316026178463072268
+
     @commands.command(aliases=["статус"])
+    @commands.check(is_owner)
     async def status(self, ctx: commands.Context, *, text):
         """Отправить сообщение о проблемах."""
         await ctx.message.delete()

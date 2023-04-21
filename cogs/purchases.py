@@ -1,6 +1,7 @@
 from os import environ
 from re import split
 
+from numpy import arange
 from aiohttp import ClientSession
 from disnake import Embed, UserCommandInteraction, ApplicationCommandInteraction, MessageCommandInteraction, \
     ButtonStyle, Message, User
@@ -9,9 +10,7 @@ from disnake.ui import View, Button
 
 
 async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
-    """Вернуть ембеды покупок по никнеймам"""
-
-    async def request_to_vk_donations(nickname: str) -> object:
+    async def request(nickname: str) -> object:
         """Вернуть информацию поиска по никнейму, в группе с донатами."""
         TOKEN = environ.get('VK_TOKEN')
         VERSION = "5.131"
@@ -33,8 +32,7 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
                     js = await request.json()
                     return js
 
-    def get_server_name(text: str) -> str:
-        """Вернуть название сервер из текста"""
+    def server_name(text: str) -> str:
         numbers = ("№0, №1", "№2", "№3")
         servers = {
             "bedwars": "BW",
@@ -44,98 +42,87 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
             "survival": "SU",
             "duels": "DU"
         }
+
         # Получаем совпадения из текста и списка.
-        server_name = set(servers.keys()) & set(text.lower().split())
+        name = set(servers.keys()) & set(text.lower().split())
         number = set(numbers) & set(text.lower().split())
 
-        print(servers["".join(server_name)] + "".join(number)[1:])
+        return servers["".join(name)] + "".join(number)[1:]
 
-        return servers["".join(server_name)] + "".join(number)[1:]
-    def get_url(response: object, i: int) -> str:
+    def url(response: object, i: int) -> str:
         """Вернуть ссылку на пост ВКонтакте"""
         owner_id = str(response["response"]["items"][i]["owner_id"])
         url_id = str(response["response"]["items"][i]["id"])
         return "https://vk.com/wall" + owner_id + "_" + url_id
 
-    def get_price_purchase(text: str) -> int:
-        price_purchase = {
-            "vip+": 369,
-            "vip": 79,
-            "vip survival": 229,
-            "mvp+": 319,
-            "mvp++": 619,
-            "mvp": 159,
-            "fly": 39,
-            "creative+": 619,
-            "creative": 129,
-            "разбан": 240,
-            "1000 монет": 49,
-            "5000 монет": 159,
-            "10000 монет": 249,
-            "пожертвования": 29
-        }
-        purchases = (
-            "fly", "vip+", "vip", "mvp++", "mvp+", "mvp", "creative+", "creative", "разбан", "1000 монет",
-            "5000 монет", "10000 монет", "пожертвования")
+    price_purchase = {
+        "vip+": 369,
+        "vip": 79,
+        "vip survival": 229,
+        "mvp+": 319,
+        "mvp++": 619,
+        "mvp": 159,
+        "fly": 39,
+        "creative+": 619,
+        "creative": 129,
+        "разбан": 240,
+        "1000 монет": 49,
+        "5000 монет": 159,
+        "10000 монет": 249,
+        "пожертвования": 29
+    }
 
-        # получаем покупку из текста, создавая список из текста и сверяя списки.
-        purchase = set(purchases) & set(text.lower().split())
+    def price(text: str) -> int:
+        text = text.lower().split()
 
-        if set("Survival") & set(text.lower().split()):
-            # Если покупка на сюрва
-            return price_purchase["".join(purchase) + " survival"]
-        else:
-            # Если покупка не на сюрва
-            return price_purchase["".join(purchase)]
+        # если покупка на сюрва
+        if "Survival" in text and "vip" in text:
+            return price_purchase["vip survival"]
+
+        # получаем покупку из текста
+        purchase = set(price_purchase.keys()) & set(text)
+        return price_purchase["".join(purchase)]
 
     purchases_embeds = []
 
     # Для каждого никнейма создаём ембед с покупоками
     for nickname in nicknames:
-        response = await request_to_vk_donations(nickname)
+        response = await request(nickname)
         post_count = response["response"]["count"]
+
+        if post_count == 0:
+            embed = Embed(
+                title=f":shopping_bags: {nickname}",
+                description="Нет покупок."
+            )
+            purchases_embeds.append(embed)
+            continue
+
         full_cost = 0
         post_text = ""
 
         # Состовляем текст всех покупок
-        for post_number in range(post_count):
+        for post_number in arange(post_count):
             text = response["response"]["items"][post_number]["text"].lower()
 
             words = [
-                "игрок ", "приобрел ", "купил ","на ", "привилегию ", "купить донат — shop.breadixpe.ru", "!", "на "
-                "——————————————————", "донат можно приобрести shop.breadixpe.ru", "——————————————————",
+                "игрок ", "приобрел ", "купил ", "на ", "привилегию ", "купить донат — shop.breadixpe.ru", "!", "на "
+                "——————————————————",
+                "донат можно приобрести shop.breadixpe.ru", "——————————————————",
                 f"{nickname} "]
-            servers = {
-                "bedwars": "BW",
-                "skywars": "SW",
-                "murder mystery": "MM",
-                "murdermystery": "MM",
-                "survival": "SU",
-                "duels": "DU"
-            }
 
             for i in words:
                 text = text.replace(i, "")
             text = text.rstrip()
 
-            server_name = "".join(set(servers.keys()) & set(text.split()))
-            text = text.replace(server_name, servers[server_name])
+            post_text += f"`{post_number + 1}.` [{server_name(text)}]({url(response, post_number)}) \n"
+            full_cost += price(text)
 
-            post_text += f"`{post_number + 1}.` [{text}]({get_url(response, post_number)}) \n"
-            full_cost += get_price_purchase(text)
-
-        if post_count == 0:
-            title = f":shopping_bags: {nickname}"
-            value = "Нет покупок."
-        else:
-            title = f":shopping_bags: {nickname} ({post_count})"
-            value = f"{post_text}"
-
-        # Создаём ембед
-        embed = Embed(title=title, description=value)
+        embed = Embed(
+            title=f":shopping_bags: {nickname} ({post_count})",
+            description=f"{post_text}"
+        )
         embed.set_footer(text=f"От {round(full_cost / 2)} до {full_cost} ₽")
-
-        # Добавляем к ембедам
         purchases_embeds.append(embed)
 
     return purchases_embeds
@@ -151,28 +138,27 @@ class PurchasesCog(commands.Cog):
         await create_purchase_embed(nicknames=["double_master"])
 
     @commands.slash_command(name="покупки")
-    async def purchases_slash_command(self, inter: ApplicationCommandInteraction, никнейм: str):
+    async def purchases_slash_command(self, inter: ApplicationCommandInteraction, nickname: str):
         """Посмотреть покупки по никнейму
 
         Parameters
         ----------
-        никнейм: Введите никнейм игрока, покупки которого хотите посмотреть
+        nickname: Введите никнейм игрока, покупки которого хотите посмотреть
         """
-        store_button = View().add_item(Button(
-            emoji="🛍️",
-            label="Сайт авто-доната",
-            style=ButtonStyle.url,
-            url="https://shop.breadixpe.ru/"
+        store_button = View()
+        store_button.add_item(Button(
+            emoji="🛍️", label="Сайт авто-доната",
+            style=ButtonStyle.url, url="https://shop.breadixpe.ru/"
         ))
-        embeds = await create_purchase_embed(nicknames=split(" |, | ,|,", никнейм))
+        embeds = await create_purchase_embed(nicknames=split(" |, | ,|,", nickname))
         await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
 
-    @commands.message_command(name="Посмотреть покупки")
+    @commands.message_command(name="Покупки")
     async def purchases_message_command(self, inter: MessageCommandInteraction, message: Message):
         embeds = await create_purchase_embed(nicknames=[message.author.display_name, message.author.name])
         await inter.response.send_message(embeds=embeds, ephemeral=True)
 
-    @commands.user_command(name="Узнать покупки")
+    @commands.user_command(name="Покупки")
     async def purchases_user_command(self, inter: UserCommandInteraction, user: User):
         embeds = await create_purchase_embed(nicknames=[user.display_name, user.name])
         await inter.response.send_message(embeds=embeds, ephemeral=True)
