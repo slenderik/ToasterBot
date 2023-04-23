@@ -125,7 +125,7 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
         embed.set_footer(text=f"От {round(full_cost / 2)} до {full_cost} ₽")
         purchases_embeds.append(embed)
 
-    return purchases_embeds
+            embeds.append(embed)
 
 
 class PurchasesCog(commands.Cog):
