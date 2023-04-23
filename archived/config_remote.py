@@ -13,7 +13,7 @@ class RemoteCogsCog(Cog):
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
-    @commands.slash_command(name="дополнение")
+    @commands.slash_command(name="модуль")
     @commands.is_owner()
     async def cog(self, inter: ApplicationCommandInteraction):
         pass

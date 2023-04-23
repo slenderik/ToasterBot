@@ -97,10 +97,9 @@ class SupportReports(Cog):
 
             helper_channel = self.bot.get_channel(helper_channel_id)
             await helper_channel.send(
-                f"**Жалоба**"
-                f"\n> {message.content}"
-                f"\nОт {message.author.display_name} ({message.author.mention})"
-                f"\n[Скачать видео]({message.attachments[0].proxy_url})",
+                f"Жалоба от {message.author.display_name}#{message.author.discriminator} ({message.author.mention})"
+                f"\n>>> {message.content}"
+                f"\n[**Скачать видео**]({message.attachments[0].proxy_url})",
                 files=files,
                 suppress_embeds=False
             )
@@ -119,10 +118,9 @@ class SupportReports(Cog):
                             f"\n [Сообщение удалится через минуту.]({message.jump_url})"
             )
             await message.author.send(embed=embed)
-            await message.add_reaction("⚠️")
+            await message.add_reaction("🚫")
             await sleep(3)
             await message.delete()
-            await message.author.send(embed=embed)
 
     @commands.command()
     async def debug_reports(self, ctx: commands.Context):
