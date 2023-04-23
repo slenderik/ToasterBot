@@ -2,8 +2,7 @@ from datetime import datetime
 from disnake.ext import commands, tasks
 from mcstatus import BedrockServer
 
-from utils.config import SERVERS_PORTS, status_voice_channel_id, server_emojis, status_message_id, \
-    status_text_channel_id
+from utils.config import SERVERS_PORTS, status_voice_channel_id, status_message_id, status_text_channel_id
 from utils.logging import send_to_admin, send_to_logs
 from disnake import Embed, Forbidden, HTTPException
 
@@ -53,6 +52,18 @@ async def update_status_message(bot):
     )
     embed.set_image(url="https://i.ibb.co/cQcs6XT/max-res.gif")
     embed.set_footer(icon_url='https://i.ibb.co/kSqg89s/logo16x16-3.png', text='Обновлено')
+
+    server_emojis = {
+        4108: '<:sw1:1077962812996993064>',
+        5732: '<:sw2:1077962839517573192>',
+        6360: '<:bw1:1077962902289518673>',
+        4248: '<:bw2:1077962930739499171>',
+        1313: '<:bw3:1077962956601561171>',
+        9624: '<:mm1:1077962982807584860>',
+        7198: '<:mm2:1077963008107622492>',
+        59898: '<:surv:1059520290461339778>',
+        7219: '<:duels:1059520345775800391>',
+    }
 
     # добавляем поля серверов в ебмед
     for server_name, ports in SERVERS_PORTS.items():
