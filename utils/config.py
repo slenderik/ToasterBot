@@ -6,7 +6,7 @@ from disnake.ext.commands import Bot, Cog
 
 guild_id = 823820166478823462  # TEST
 admin_channel_id = 1074308668364947538
-audit_log_channel_id = 1084879584715083786  # TEST
+log_channel_id = 1084879584715083786  # TEST
 voice_create_channel_id = 997851742475669594
 
 status_voice_channel_id = 1066055695914520606
@@ -16,26 +16,10 @@ status_message_id = 1084479038866866316
 servers = ["SkyWars №1", "SkyWars №2", "BedWars №1", "BedWars №2", "BedWars №3", "Duels №1", "Murder Mystery №1",
            "Murder Mystery №2", "Survival №1"]
 
-SERVERS_PORTS = {
-    'SkyWars': [4108, 5732],
-    'BedWars': [6360, 4248, 1313],
-    'Murder Mystery': [9624, 7198],
-    'Survival': [59898],
-    'Duels': [7219]
-}
+server_names = "SkyWars №1, SkyWars №2, BedWars №1, BedWars №2, BedWars №3, Duels №1, Murder Mystery №1,  Murder Mystery №2, Survival №1"
+games_modes_names = "skywars, bedwars, duels, survival, murder_mystery"
 
-server_emojis = {
-    4108: '<:sw1:1077962812996993064>',
-    5732: '<:sw2:1077962839517573192>',
-    6360: '<:bw1:1077962902289518673>',
-    4248: '<:bw2:1077962930739499171>',
-    1313: '<:bw3:1077962956601561171>',
-    9624: '<:mm1:1077962982807584860>',
-    7198: '<:mm2:1077963008107622492>',
-    59898: '<:surv:1059520290461339778>',
-    7219: '<:duels:1059520345775800391>',
-}
-
+data_storage = "general"  # genaral or test
 
 async def get_connection() -> object:
     global data_storage
@@ -47,24 +31,22 @@ async def get_connection() -> object:
         print(f": {e}")
 
 
-data_storage = "general"  # genaral or test
 
-async def get_data_config(data_key: str):
+async def get_data_config(inter: ApplicationCommandInteraction, data_key: str):
     create_discord_users = """
-    CREATE TABLE IF NOT EXISTS discord_users (
+    CREATE TABLE IF NOT EXISTS test_config (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        NID INTEGER NOT NULL,
-        discord_id INTEGER NOT NULL,
-        FOREIGN KEY (NID) REFERENCES users(NID) ON DELETE CASCADE
-        CONSTRAINT discord_id_uq UNIQUE(discord_id)
+        name TEXT UNIQUE,
+        value TEXT UNIQUE
     );
     """
     try:
         connect = await get_connection()
         cursor = await connect.cursor()
+        await cursor.execute(create_discord_users)
 
     except Error as e:
-        print(f"[ДОБАВИТЬ НИК АЙДИ ИЗ ДС АЙДИ] Ошибка: {e}")
+        await inter.response.send_message()
 
     finally:
         await connect.close()
