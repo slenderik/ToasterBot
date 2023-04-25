@@ -83,7 +83,7 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
         purchase = set(price_purchase.keys()) & set(text)
         return price_purchase["".join(purchase)]
 
-    purchases_embeds = []
+    embeds = []
 
     # Для каждого никнейма создаём ембед с покупоками
     for nickname in nicknames:
@@ -95,7 +95,7 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
                 title=f":shopping_bags: {nickname}",
                 description="Нет покупок."
             )
-            purchases_embeds.append(embed)
+            embeds.append(embed)
             continue
 
         full_cost = 0
@@ -104,6 +104,11 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
         # Состовляем текст всех покупок
         for post_number in arange(post_count):
             text = response["response"]["items"][post_number]["text"].lower()
+
+            # TODO никнеймы
+            # nickname_in_post = nickname(text)
+            # if nickname != nickname_in_post:
+            #     continue
 
             words = [
                 "игрок ", "приобрел ", "купил ", "на ", "привилегию ", "купить донат — shop.breadixpe.ru", "!", "на "
@@ -123,9 +128,7 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
             description=f"{post_text}"
         )
         embed.set_footer(text=f"От {round(full_cost / 2)} до {full_cost} ₽")
-        purchases_embeds.append(embed)
-
-            embeds.append(embed)
+        embeds.append(embed)
 
 
 class PurchasesCog(commands.Cog):

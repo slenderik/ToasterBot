@@ -21,6 +21,7 @@ games_modes_names = "skywars, bedwars, duels, survival, murder_mystery"
 
 data_storage = "general"  # genaral or test
 
+
 async def get_connection() -> object:
     global data_storage
     try:
@@ -31,28 +32,35 @@ async def get_connection() -> object:
         print(f": {e}")
 
 
+async def get(key: str) -> str:
+    request_get = f"SELECT data FROM {data_storage} WHERE key = {key}"
+    connect = await get_connection()
+    cursor = await connect.cursor()
+    data = await cursor.execute(request_get)
 
-async def get_data_config(inter: ApplicationCommandInteraction, data_key: str):
-    create_discord_users = """
-    CREATE TABLE IF NOT EXISTS test_config (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE,
-        value TEXT UNIQUE
-    );
-    """
-    try:
-        connect = await get_connection()
-        cursor = await connect.cursor()
-        await cursor.execute(create_discord_users)
+    await connect.close()
+    return data
 
-    except Error as e:
-        await inter.response.send_message()
 
-    finally:
-        await connect.close()
-
-async def update_data_config(name: str, value: str):
+async def update(name: str, value: str):
     ...
+
+# create_discord_users = """
+#     CREATE TABLE IF NOT EXISTS test_config (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         name TEXT UNIQUE,
+#         value TEXT UNIQUE
+#     );
+#     """
+#
+#     request_get = f"SELECT data FROM {data_storage} WHERE key = {key}"
+#     connect = await get_connection()
+#     cursor = await connect.cursor(request_get)
+#     data = await cursor.execute(create_discord_users)
+#
+#     await connect.close()
+#     return data
+
 
 class Config(Cog):
 
@@ -92,7 +100,7 @@ class Config(Cog):
             name: str,
             value: str
     ):
-        await update_data_config(name, value)
+        await update(name, value)
         embed = Embed(
             title="Данные в конфиге обновлены",
             description=f"Новое значение для поля {name} : {data_storage}"
@@ -107,7 +115,7 @@ class Config(Cog):
             name: str,
             value: str
     ):
-        await update_data_config(name, value)
+        await update(name, value)
 
         embed = Embed(
             title="Добавлены данные в конфиг",
@@ -124,7 +132,7 @@ class Config(Cog):
             name: str,
             value: str
     ):
-        await update_data_config(name, value)
+        await update(name, value)
 
         embed = Embed(
             title="Обновлены данные в конфиге",
@@ -132,6 +140,8 @@ class Config(Cog):
         )
 
         await inter.send(embed=embed, ephemeral=True)
+
+
 
 
 def setup(bot: Bot) -> None:
