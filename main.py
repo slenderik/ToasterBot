@@ -9,9 +9,14 @@ bot = commands.Bot(
     intents=Intents.all()
 )
 
-Embed.set_default_color(0xf1c40f)  # старый голубокий синий - 283593
+
+@bot.listen()
+async def on_ready():
+    print(f"Logged in {bot.user} ({bot.user.id})!")
+
+Embed.set_default_color(0xf1c40f)  # старый глубокий синий - 283593
 
 bot.load_extensions("cogs")
-bot.load_extensions("events")
+#bot.load_extensions("events")
 
 bot.run(environ.get('DISCORD_TOKEN'))
