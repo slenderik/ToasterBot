@@ -2,7 +2,7 @@ from disnake import ApplicationCommandInteraction, Forbidden, Member, NotFound, 
 from disnake.ext import commands
 from disnake.ext.commands import Bot, Cog
 
-from utils.config import audit_log_channel_id
+#from utils.config import audit_log_channel_id
 
 
 class PurgeCog(Cog):

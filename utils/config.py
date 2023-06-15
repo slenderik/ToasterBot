@@ -7,20 +7,21 @@ from disnake.ext.commands import Bot, Cog
 guild_id = 823820166478823462  # TEST
 admin_channel_id = 1074308668364947538
 log_channel_id = 1084879584715083786  # TEST
-voice_create_channel_id = 997851742475669594
 
 status_voice_channel_id = 1066055695914520606
 status_text_channel_id = 1078357675622023228
 status_message_id = 1084479038866866316
 
 servers = ["SkyWars №1", "SkyWars №2", "BedWars №1", "BedWars №2", "BedWars №3", "Duels №1", "Murder Mystery №1",
-           "Murder Mystery №2", "Survival №1"]
+           "Murder Mystery №2", "Survival №1", "S.T.A.L.K.E.R."]
 
-server_names = "SkyWars №1, SkyWars №2, BedWars №1, BedWars №2, BedWars №3, Duels №1, Murder Mystery №1,  Murder Mystery №2, Survival №1"
+server_names = "SkyWars №1, SkyWars №2, BedWars №1, BedWars №2, BedWars №3, Duels №1, Murder Mystery №1,  " \
+               "Murder Mystery №2, Survival №1, S.T.A.L.K.E.R."
 games_modes_names = "skywars, bedwars, duels, survival, murder_mystery"
 
-data_storage = "general"  # genaral or test
 
+
+data_storage = "general"  # genaral or test
 
 async def get_connection() -> object:
     global data_storage
