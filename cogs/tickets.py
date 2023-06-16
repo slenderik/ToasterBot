@@ -16,7 +16,7 @@ class ModMail(Cog):
     # FORUM -> DM
     @commands.Cog.listener()
     async def on_message(self, message: Message):
-        print(message.channel.id == modmail_forum_id)
+        print("ANIME ", message.channel.id == modmail_forum_id)
         if not message.channel.id == modmail_forum_id:
             return
 
