@@ -2,6 +2,7 @@ from disnake import ApplicationCommandInteraction, Message, DMChannel, Thread
 from disnake.ext import commands
 from disnake.ext.commands import Bot, Cog
 
+modmail_forum_id: int = 1118969274527133808
 
 class ModMail(Cog):
 
@@ -12,12 +13,49 @@ class ModMail(Cog):
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
+    # FORUM -> DM
+    @commands.Cog.listener()
+    async def on_message(self, message: Message):
+        print(message.channel.id == modmail_forum_id)
+        if not message.channel.id == modmail_forum_id:
+            return
+
+        thread = message.thread
+
+        user_id = thread.name[-19:-1]
+
+        try:
+            user = self.bot.get_user(user_id)
+
+            files = []
+
+            for attachment in message.attachments:
+                files += await attachment.to_file(description=f"From {user.name} ({user.id})")
+
+            await user.send(
+                files=files,
+                embeds=message.embeds,
+                content=message.content,
+                stickers=message.stickers,
+                components=message.components
+            )
+
+        except Exception as e:
+            await thread.send(f"ERROR: {e}")
+            await message.add_reaction("⚠️")
+
+        else:
+            await message.add_reaction("✔️")
+
+
+
+
+    # DM -> FORUM
     @commands.Cog.listener()
     async def on_message(self, message: Message):
         if not isinstance(message.channel, DMChannel):
             return
 
-        modmail_forum_id = 1118969274527133808
         modmail_forum: Thread
         modmail_forum = self.bot.get_channel(modmail_forum_id)
         user = message.author
