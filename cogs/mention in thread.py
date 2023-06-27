@@ -4,6 +4,7 @@ from disnake.ext.commands import Bot, Cog
 import aiosqlite
 from utils.checks import discord_admins
 
+
 async def get_roles():
     try:
         async with aiosqlite.connect("MentionRolesThread.db", check_same_thread=False) as db:

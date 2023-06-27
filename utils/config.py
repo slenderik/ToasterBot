@@ -1,8 +1,28 @@
 import aiosqlite
 from aiosqlite import Error
-from disnake import Embed, ApplicationCommandInteraction
 from disnake.ext import commands
+from utils.checks import discord_admins
 from disnake.ext.commands import Bot, Cog
+from disnake import ApplicationCommandInteraction
+
+
+async def get_many():
+    try:
+        async with aiosqlite.connect("config.db", check_same_thread=False) as db:
+            async with db.execute("SELECT role_id FROM roles") as cursor:
+                row = await cursor.fetchall()
+                return row
+
+    except aiosqlite.Error as e:
+        print(f"[ERROR {__name__}] {e}")
+
+
+async def get_one(thing: str, role_id: str):
+    async with aiosqlite.connect("confg.db", check_same_thread=False) as db:
+        async with db.execute(f"SELECT {thing} FROM roles WHERE role_id = {role_id}") as cursor:
+            row = await cursor.fetchone()
+            return row[0]
+
 
 guild_id = 823820166478823462  # TEST
 admin_channel_id = 1074308668364947538
@@ -17,34 +37,12 @@ servers = ["SkyWars №1", "SkyWars №2", "BedWars №1", "BedWars №2", "BedW
 
 server_names = "SkyWars №1, SkyWars №2, BedWars №1, BedWars №2, BedWars №3, Duels №1, Murder Mystery №1,  " \
                "Murder Mystery №2, Survival №1, S.T.A.L.K.E.R."
+
 games_modes_names = "skywars, bedwars, duels, survival, murder_mystery"
-
-
-
-data_storage = "general"  # genaral or test
-
-async def get_connection() -> object:
-    global data_storage
-    try:
-        connect = await aiosqlite.connect(f"{data_storage}.db")
-        return connect
-
-    except Error as e:
-        print(f": {e}")
-
-
-async def get(key: str) -> str:
-    request_get = f"SELECT data FROM {data_storage} WHERE key = {key}"
-    connect = await get_connection()
-    cursor = await connect.cursor()
-    data = await cursor.execute(request_get)
-
-    await connect.close()
-    return data
-
 
 async def update(name: str, value: str):
     ...
+
 
 # create_discord_users = """
 #     CREATE TABLE IF NOT EXISTS test_config (
@@ -68,81 +66,83 @@ class Config(Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
+    async def get_connection(self) -> object:
+        global data_storage
+        try:
+            connect = await aiosqlite.connect(f"config.db", check_same_thread=False)
+            return connect
+
+        except Error as e:
+            print(f": {e}")
+
+    async def get(self, key: str) -> str:
+        request_get = f"SELECT data FROM {data_storage} WHERE key = {key}"
+        connect = await self.get_connection()
+        cursor = await connect.cursor()
+        data = await cursor.execute(request_get)
+
+        await connect.close()
+        return data
+
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
     @commands.slash_command(name="конфиг")
-    @commands.is_owner()
+    @commands.check(discord_admins)
     async def config(self, inter: ApplicationCommandInteraction):
         pass
 
-    @config.sub_command(name="таблица")
-    @commands.is_owner()
-    async def change_config(
-            self,
-            inter: ApplicationCommandInteraction,
-            new_data_storage: str = commands.Param(choices=["genaral", "test"])
-    ):
-        global data_storage
-        data_storage = new_data_storage
-        embed = Embed(
-            title="Конфиг изменён",
-            description=f"Новая таблица: {data_storage}"
-        )
+    @config.sub_command(name="удалить")
+    @commands.check(discord_admins)
+    async def list(self, inter: ApplicationCommandInteraction, id: int):
+        text = "Не удалось"
+        async with aiosqlite.connect("MentionRolesThread.db", check_same_thread=False) as db:
+            async with db.execute(f"SELECT * FROM roles WHERE id = {id}") as cursor:
+                info = await cursor.fetchone()
+                info = info[0]
 
-        await inter.send(embed=embed, ephemeral=True)
+                await db.execute(f"DELETE FROM roles WHERE id = {id}")
+                await db.commit()
+                text = f"{text[0]}. <@&{text[1]}> -> <#{text[2]}> \n" \
+                       f"╰ {text[3]} \n"
 
-    @config.sub_command(name="список")
-    @commands.is_owner()
-    async def data_list_config(
-            self,
-            inter: ApplicationCommandInteraction,
-            name: str,
-            value: str
-    ):
-        await update(name, value)
-        embed = Embed(
-            title="Данные в конфиге обновлены",
-            description=f"Новое значение для поля {name} : {data_storage}"
-        )
-        await inter.send(embed=embed, ephemeral=True)
+        await inter.send(text, ephemeral=True)
 
     @config.sub_command(name="добавить")
-    @commands.is_owner()
-    async def add_to_config(
-            self,
-            inter: ApplicationCommandInteraction,
-            name: str,
-            value: str
-    ):
-        await update(name, value)
+    @commands.check(discord_admins)
+    async def list(self, inter: ApplicationCommandInteraction, key: str, new_value: str):
+        text = "Не удалось"
+        thread_id = int(thread_id)
+        async with aiosqlite.connect("MentionRolesThread.db", ) as db:
+            await db.execute(
+                f"INSERT INTO roles(role_id, thread_id, message_text)"
+                f"VALUES ({role_id}, {thread_id}, '{message_text}')"
+            )
+            await db.commit()
 
-        embed = Embed(
-            title="Добавлены данные в конфиг",
-            description=f"Новое значение {name} : {data_storage}"
-        )
+            async with db.execute("SELECT * FROM roles WHERE id = (SELECT MAX(id) FROM roles)") as cursor:
+                info = await cursor.fetchone()
+                info = info[0]
 
-        await inter.send(embed=embed, ephemeral=True)
+                text = f"{text[0]}. <@&{text[1]}> -> <#{text[2]}> \n" \
+                       f"╰ {text[3]} \n"
 
-    @config.sub_command(name="обновить")
-    @commands.is_owner()
-    async def update_config(
-            self,
-            inter: ApplicationCommandInteraction,
-            name: str,
-            value: str
-    ):
-        await update(name, value)
+        await inter.send(text, ephemeral=True)
 
-        embed = Embed(
-            title="Обновлены данные в конфиге",
-            description=f"Новое значение для поля {name } : {data_storage}"
-        )
+    @config.sub_command(name="список")
+    @commands.check(discord_admins)
+    async def list(self, inter: ApplicationCommandInteraction):
+        async with aiosqlite.connect("MentionRolesThread.db", check_same_thread=False) as db:
+            async with db.execute(f"SELECT * FROM roles") as cursor:
+                row_list = await cursor.fetchall()
 
-        await inter.send(embed=embed, ephemeral=True)
+        full_text = ""
+        for text in row_list:
+            full_text += f"{text[0]}. <@&{text[1]}> -> <#{text[2]}> \n" \
+                         f"╰ {text[3]} \n"
 
-
+        await inter.send(full_text, ephemeral=True)
 
 
 def setup(bot: Bot) -> None:
