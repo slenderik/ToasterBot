@@ -45,7 +45,7 @@ class CogRemote(Cog):
 
     @cog.sub_command(name="загрузить")
     @commands.is_owner()
-    async def cog_load(self, inter: ApplicationCommandInteraction, extension: cogs):
+    async def extension_load(self, inter: ApplicationCommandInteraction, extension: cogs):
         """Загрузить дополнение"""
         print(f"[{__name__}] {inter.user.name}: загружает {extension}")
         try:
@@ -69,7 +69,7 @@ class CogRemote(Cog):
 
     @cog.sub_command(name="выгрузить")
     @commands.is_owner()
-    async def cog_unload(self, inter: ApplicationCommandInteraction, extension: cogs):
+    async def extension_unload(self, inter: ApplicationCommandInteraction, extension: cogs):
         """Выгрузить дополнение"""
         print(f"[{inter.user.name}]: выгружает {extension}")
         self.bot.unload_extension(extension)
@@ -78,7 +78,7 @@ class CogRemote(Cog):
 
     @cog.sub_command(name="перезагрузить")
     @commands.is_owner()
-    async def cog_reload(self, inter: ApplicationCommandInteraction, extension: cogs):
+    async def extension_reload(self, inter: ApplicationCommandInteraction, extension: cogs):
         """Загрузить дополнение"""
         print(f"[{inter.user.name}]: перезагружает {extension}")
         self.bot.reload_extension(extension)
