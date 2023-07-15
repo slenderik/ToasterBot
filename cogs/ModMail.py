@@ -1,4 +1,8 @@
-from disnake import ApplicationCommandInteraction, Message, DMChannel, Thread, NotFound, HTTPException
+import asyncio
+import datetime
+
+from disnake import ApplicationCommandInteraction, Message, DMChannel, Thread, NotFound, HTTPException, Thread, User, \
+    Member, ForumChannel
 from disnake.ext import commands
 from disnake.ext.commands import Bot, Cog
 
@@ -14,61 +18,81 @@ class ModMail(Cog):
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
 
+    async def get_modmail_thread(self, user: User | Member) -> Thread | None:
+        thread = None
+        modmail_forum = self.bot.get_channel(modmail_forum_id)
+        for mod_thread in modmail_forum.threads:
+            if (str(user.id) in mod_thread.name) and (not mod_thread.archived):
+                thread = mod_thread
+                break
+
+        return thread
+
+    @commands.Cog.listener("on_typing")
+    async def on_user_typing(self, channel, user, when: datetime.datetime):
+        thread = await self.get_modmail_thread(user)
+
+        if thread is None:
+            return
+
+        if thread.parent_id == modmail_forum_id:
+            return
+
+        await thread.trigger_typing()
+
+    @commands.Cog.listener("on_typing")
+    async def on_agent_typing(self, channel, user, when: datetime.datetime):
+        if not channel.parent_id == modmail_forum_id:
+            return
+
+        dm = await user.create_dm()
+
+        await dm.trigger_typing()
+
     @commands.Cog.listener("on_message")
     async def dm_forum(self, message: Message):
-        # DM -> FORUM
-        # пропускаем рекурсию
+        """DM -> FORUM"""
+
+        # denied cyclings
         if message.author.id == self.bot.user.id:
             return
 
-        if isinstance(message.channel, DMChannel):
-            modmail_forum: Thread
-            modmail_forum = self.bot.get_channel(modmail_forum_id)
-            user = message.author
+        # only direct message
+        if not isinstance(message.channel, DMChannel):
+            return
 
-            if modmail_forum is None:
-                return
+        modmail_forum: Thread
+        modmail_forum = self.bot.get_channel(modmail_forum_id)
+        user = message.author
 
-            thread = None
-            for mod_thread in modmail_forum.threads:
-                print("name: ", mod_thread.name)
-                print("name: ", str(user.id) in mod_thread.name)
-                print("actived?: ", not mod_thread.archived)
-                print("Good one?: ", str(user.id) in mod_thread.name and not mod_thread.archived)
+        if modmail_forum is None:
+            return
 
-                if (str(user.id) in mod_thread.name) and (not mod_thread.archived):
-                    thread = mod_thread
-                    print(thread)
-                    break
+        thread = await self.get_modmail_thread(user)
 
-            print(thread)
-            print("Create new: ", thread is not None)
+        if thread is None:
+            thread, message = await modmail_forum.create_thread(
+                name=f"{user.name} ({user.id})",
+                content=">>>" + message.content
+            )
 
-            if thread is None:
-                thread, message = await modmail_forum.create_thread(
-                    name=f"{user.name} ({user.id})",
-                    content=message.content
-                )
-                print(thread.name)
+        files = []
+        for attachment in message.attachments:
+            files += await attachment.to_file(description=f"From {user.name} ({user.id})")
+        try:
+            await thread.send(
+                content=message.content,
+                embeds=message.embeds,
+                files=files,
+                stickers=message.stickers,
+                components=message.components
+            )
+        except Exception as e:
+            await message.add_reaction("⚠️")
+            await thread.send(f"ERROR: `{e}`")
 
-            files = []
-
-            for attachment in message.attachments:
-                files += await attachment.to_file(description=f"From {user.name} ({user.id})")
-            try:
-                await thread.send(
-                    content=message.content,
-                    embeds=message.embeds,
-                    files=files,
-                    stickers=message.stickers,
-                    components=message.components
-                )
-            except Exception as e:
-                await message.add_reaction("⚠️")
-                await thread.send(f"ERROR: `{e}`")
-
-            else:
-                await message.add_reaction("✔️")
+        else:
+            await message.add_reaction("✔️")
 
     @commands.Cog.listener("on_message")
     async def forum_to_dm(self, message: Message):
