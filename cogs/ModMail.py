@@ -42,23 +42,25 @@ class ModMail(Cog):
 
     @commands.Cog.listener("on_typing")
     async def on_agent_typing(self, channel, user, when: datetime.datetime):
+        if not isinstance(channel, Thread):
+            return
+
         if not channel.parent_id == modmail_forum_id:
             return
 
         dm = await user.create_dm()
-
         await dm.trigger_typing()
 
     @commands.Cog.listener("on_message")
     async def dm_forum(self, message: Message):
         """DM -> FORUM"""
 
-        # denied cyclings
-        if message.author.id == self.bot.user.id:
-            return
-
         # only direct message
         if not isinstance(message.channel, DMChannel):
+            return
+
+        # denied cyclings
+        if message.author.id == self.bot.user.id:
             return
 
         modmail_forum: Thread
