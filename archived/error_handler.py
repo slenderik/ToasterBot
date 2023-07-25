@@ -33,7 +33,7 @@ class ErrorsCog(commands.Cog):
             texts = ["Повторите позже", "чуть позже!", "пару секунд!", "примите позу ожидания", "одну секундочку!",
                      "подождите"]
             error_embed = Embed(
-                title=f":hourglass: | {choice(texts)}",
+                title=f":hourglass:     {choice(texts)}",
                 description=f"Время перед повторным использованием: `{round(error.retry_after)}` сек."
             )
             await inter.response.send_message(embed=error_embed, ephemeral=True)
