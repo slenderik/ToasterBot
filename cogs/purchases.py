@@ -9,29 +9,30 @@ from disnake.ext import commands
 from disnake.ui import View, Button
 
 
-async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
-    async def request(nickname: str) -> object:
-        """Вернуть информацию поиска по никнейму, в группе с донатами."""
-        TOKEN = environ.get('VK_TOKEN')
-        VERSION = "5.131"
-        GROUP_NAME = "breadixdonations"
-        GROUP_ID = "-151687251"  # id группы с донатами
-        COUNT = "100"  # Максимум 100 постов за один запрос.
-        async with ClientSession() as session:
-            async with session.get(
-                    f"https://api.vk.com/method/wall.search?"
-                    f"access_token={TOKEN}"
-                    f"&v={VERSION}"
-                    f"&domain={GROUP_NAME}"
-                    f"&owner_id={GROUP_ID}"
-                    f"&query={nickname}"
-                    f"&owners_only=1"
-                    f"&count={COUNT}"
-            ) as request:
-                if request.status == 200:
-                    js = await request.json()
-                    return js
+async def request(nickname: str) -> object:
+    """Вернуть информацию поиска по никнейму, в группе с донатами."""
+    TOKEN = environ.get('VK_TOKEN')
+    VERSION = "5.131"
+    GROUP_NAME = "breadixdonations"
+    GROUP_ID = "-151687251"  # id группы с донатами
+    COUNT = "100"  # Максимум 100 постов за один запрос.
+    async with ClientSession() as session:
+        async with session.get(
+                f"https://api.vk.com/method/wall.search?"
+                f"access_token={TOKEN}"
+                f"&v={VERSION}"
+                f"&domain={GROUP_NAME}"
+                f"&owner_id={GROUP_ID}"
+                f"&query={nickname}"
+                f"&owners_only=1"
+                f"&count={COUNT}"
+        ) as request:
+            if request.status == 200:
+                js = await request.json()
+                return js
 
+
+async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
     def server_name(text: str) -> str:
         numbers = ("№0, №1", "№2", "№3")
         servers = {
@@ -112,7 +113,7 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
 
             words = [
                 "игрок ", "приобрел ", "купил ", "на ", "привилегию ", "купить донат — shop.breadixpe.ru", "!", "на "
-                "——————————————————",
+                                                                                                                "——————————————————",
                 "донат можно приобрести shop.breadixpe.ru", "——————————————————",
                 f"{nickname} "]
 
@@ -131,6 +132,43 @@ async def create_purchase_embed(nicknames: list[str]) -> list[Embed]:
         embeds.append(embed)
 
 
+async def get_available_privileges(nickname: str) -> list[str] | None:
+    all_privileges = ("fly", "vip", "vip+", "mvp", "mvp+", "mvp++", "creative", "creative+")
+
+    response = await request(nickname)
+    buy_count = response["response"]["count"]
+
+    if buy_count == 0:
+        return None
+
+    privileges = {}
+
+    for buy in arange(buy_count):
+        text = response["response"]["items"][buy]["text"].lower()
+
+        privilege = None
+        for i in all_privileges:
+            if i in text:
+                privilege = i
+                break
+
+        if privilege is None:
+            continue
+
+        server_name = server_name(text)
+
+        if server_name in privileges:
+            # check best privilege
+            previous_privilege = privileges.get(server_name)
+            if all_privileges.index(privilege) > all_privileges.index(previous_privilege):
+                privileges.update(server_name=privilege)
+
+        if privilege not in privileges:
+            privileges.update(server_name=privilege)
+
+    return privileges.values()
+
+
 class PurchasesCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -138,7 +176,6 @@ class PurchasesCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{self.bot.user} | {__name__}")
-        await create_purchase_embed(nicknames=["double_master"])
 
     @commands.slash_command(name="покупки")
     async def purchases_slash_command(self, inter: ApplicationCommandInteraction, nickname: str):
@@ -149,12 +186,21 @@ class PurchasesCog(commands.Cog):
         nickname: Введите никнейм игрока, покупки которого хотите посмотреть
         """
         store_button = View()
-        store_button.add_item(Button(
-            emoji="🛍️", label="Сайт авто-доната",
-            style=ButtonStyle.url, url="https://shop.breadixpe.ru/"
-        ))
+        button = Button(emoji="🛍️", label="Сайт авто-доната", style=ButtonStyle.url, url="https://shop.breadixpe.ru/")
+        store_button.add_item(button)
         embeds = await create_purchase_embed(nicknames=split(" |, | ,|,", nickname))
         await inter.response.send_message(embeds=embeds, ephemeral=True, view=store_button)
+
+    @commands.slash_command(name="покупки2")
+    async def purchases_slash_command2(self, inter: ApplicationCommandInteraction, nickname: str):
+        """Посмотреть покупки по никнейму
+
+        Parameters
+        ----------
+        nickname: Введите никнейм игрока, покупки которого хотите посмотреть
+        """
+        prvileges = await get_available_privileges(nickname)
+        await inter.response.send_message(str(prvileges), ephemeral=True)
 
     @commands.message_command(name="Покупки")
     async def purchases_message_command(self, inter: MessageCommandInteraction, message: Message):

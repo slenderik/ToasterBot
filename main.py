@@ -5,9 +5,9 @@ from disnake.ext import commands
 
 bot = commands.Bot(
     command_prefix=".",
-    intents=Intents.all()
+    intents=Intents.all(),
+    test_guilds=[823820166478823462],
 )
-#     test_guilds=[823820166478823462],
 
 @bot.listen()
 async def on_ready():
@@ -18,7 +18,5 @@ Embed.set_default_color(0xf1c40f)  # старый глубокий синий - 
 
 bot.load_extensions("cogs")
 bot.load_extensions("events")
-
-ApplicationCommandInteraction.send(ephemeral=True)
 
 bot.run(environ.get('DISCORD_TOKEN'))

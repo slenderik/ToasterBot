@@ -16,9 +16,7 @@ class CommandsList(commands.Cog):
 
     @commands.slash_command(name="команды")
     async def commands_list(self, inter: ApplicationCommandInteraction):
-        """
-        Показывает все команды и их использование
-        """
+        """Показывает все команды и их использование"""
         text = ""
         for command in self.bot.global_slash_commands:
             local_command = self.bot.get_slash_command(command.name)

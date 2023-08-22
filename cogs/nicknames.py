@@ -1,6 +1,6 @@
 import datetime
 import time
-
+from uuid import uuid4, UUID
 import aiosqlite
 from aiosqlite import Error
 from disnake import Embed
@@ -34,12 +34,40 @@ CREATE TABLE IF NOT EXISTS nicknames (
     FOREIGN KEY (NID) REFERENCES users(NID) ON DELETE CASCADE,
     CONSTRAINT nickname_uq UNIQUE(nickname)
 );
-"""  # TODO CHECK
+"""
 
 
-def get_nid(nid: list[list[int]]) -> int:
-    nid = nid[0][0]
-    return nid
+# TODO check SQL injections
+
+async def db_coonect() -> aiosqlite.Connection:
+    DATABASE_NAME = "breadix.db"
+    return aiosqlite.connect(DATABASE_NAME)
+
+
+async def create_user(discord_id: str = None, vk_id: int = None, telegram_id: str = None, nickname: str = None) -> UUID:
+    """Create a new user in database, and insert some linked data"""
+    breadix_id = uuid4()
+
+    try:
+        async with db_coonect() as db:
+            await db.execute("INSERT INTO users ...")
+            await db.commit()
+    except Exception as e:
+        print(f"{__name__} : {e}")
+
+    return breadix_id
+
+
+async def get_nicknames(breadix_id: int) -> list[str] | None:
+    nicknames = []
+    try:
+        async with db_coonect() as db:
+            await db.execute("INSERT INTO some_table ...")
+            await db.commit()
+    except Exception as e:
+        print(f"{__name__} : {e}")
+
+    return nicknames
 
 
 def get_nicknames(nicknames: list[list[str]]) -> str:
