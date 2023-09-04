@@ -112,4 +112,4 @@ for filename in os.listdir("./"):
 		bot.load_extension(f"{filename[:-3]}")
 
 
-bot.run("ODc1MDg0MzgzMjg2MDg3Njkx.YRQX1w.DtmzpbMWMUvOpwS7U8YBkLPZr4c")
+bot.run(environ.get('DISCORD_TOKEN')) # old one token not working
