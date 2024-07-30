@@ -1,4 +1,4 @@
 disnake==2.8.1
-aiohttp==3.8.4
+aiohttp==3.9.4
 aiosqlite==0.19.0
 mcstatus==10.0.3
